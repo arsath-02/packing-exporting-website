@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const packagingSchema = new mongoose.Schema({
-  garment_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Garment', required: true },
+  product_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true },
   method: { type: String, required: true },
   weight: { type: Number, required: true },
   status: { type: String, enum: ['Packed', 'Ready to Ship'], default: 'Packed' }

@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const ExportSchema = new mongoose.Schema({
     shipping_id:{type:String,unique:true,required:true},
-    garment_id:[{type:mongoose.Schema.Types.ObjectId,ref:'Product',required:true}],
+    product_id:[{type:mongoose.Schema.Types.ObjectId,ref:'Product',required:true}],
     destination:{type:String,required:true},
     export_date:{type:Date,default:Date.now},
     status:{type:String,enum:['pending','Loaded','Shipped'],default:'pending'},
