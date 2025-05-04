@@ -14,14 +14,15 @@ const Navbar = () => {
       <div className="flex justify-between items-center h-16 max-w-[1240px] mx-auto px-4">
         {/* Logo */}
 
-          <h1 className="text-2xl font-bold cursor-pointer">Textile Packing and Export</h1>
+          <h1 className="text-2xl font-bold cursor-pointer">Quality Checking & Shipping</h1>
+          
      
 
         {/* Desktop Navigation */}
         <ul className="hidden md:flex space-x-6">
-            <li><Link to="/Manager/orders" className="hover:text-gray-400">Orders</Link></li>
-            <li><Link to="/Manager/stock-check" className="hover:text-gray-400">Stock Check</Link></li>
-            <li><Link to="/Manager/packed-orders" className="hover:text-gray-400">Packed Orders</Link></li>
+            <li><Link to="/Manager/orders" className="hover:text-gray-400">Dashboard</Link></li>
+            <li><Link to="/Manager/quality-check" className="hover:text-gray-400">Quality Check</Link></li>
+            <li><Link to="/Manager/packed-orders" className="hover:text-gray-400">Packing & Shipping</Link></li>
             <li><Link to="/" className="hover:text-gray-400">Logout</Link></li> {/* Assuming logout goes to Signin */}
         </ul>
 
@@ -44,7 +45,7 @@ const Navbar = () => {
         </div>
         <ul className="flex flex-col p-4 space-y-4 text-white">
             <li><Link to="/Manager/orders" onClick={handleNav} className="hover:text-gray-400">Orders</Link></li>
-            <li><Link to="/Manager/stock-check" onClick={handleNav} className="hover:text-gray-400">Stock Check</Link></li>
+            <li><Link to="/Manager/quality-check" onClick={handleNav} className="hover:text-gray-400">Stock Check</Link></li>
             <li><Link to="/Manager/packed-orders" onClick={handleNav} className="hover:text-gray-400">Packed Orders</Link></li>
             <li><Link to="/" onClick={handleNav} className="hover:text-gray-400">Logout</Link></li>
         </ul>
