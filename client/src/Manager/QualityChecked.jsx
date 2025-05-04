@@ -10,29 +10,32 @@ const QualityChecked = () => {
   const [failedCount, setFailedCount] = useState(0);
   const [issueDescription, setIssueDescription] = useState('');
 
-  useEffect(() => {
-    const fetchOrders = async () => {
-      try {
-        const response = await fetch('http://localhost:5000/api/quality-check');
-        const data = await response.json();
-        
-        const processedOrders = data.orders.map(order => ({
-          ...order,
-          passed: order.passed || 0,
-          failed: order.failed || 0,
-          status: order.status || 'Pending QC'
-        }));
-        
-        setOrders(processedOrders);
-      } catch (error) {
-        console.error('Error fetching orders:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    
-    fetchOrders();
-  }, []);
+  // Define fetchOrders outside of useEffect
+const fetchOrders = async () => {
+  try {
+    const response = await fetch('http://localhost:5000/api/quality-check');
+    const data = await response.json();
+
+    const processedOrders = data.orders.map(order => ({
+      ...order,
+      passed: order.passed || 0,
+      failed: order.failed || 0,
+      status: order.status || 'Pending QC',
+    }));
+
+    setOrders(processedOrders);
+  } catch (error) {
+    console.error('Error fetching orders:', error);
+  } finally {
+    setLoading(false);
+  }
+};
+
+// Call fetchOrders on initial load
+useEffect(() => {
+  fetchOrders();
+}, []);
+
 
   // Filter orders based on the active tab
   const filteredOrders =
@@ -64,12 +67,14 @@ const QualityChecked = () => {
           o._id === order._id ? updatedOrder : o
         );
         setOrders(updatedOrders);
+        await fetchOrders();
       }
     } catch (error) {
       console.error('Error updating order status:', error);
     }
 
     console.log(`Started QC for order ${order._id}`);
+    
   };
 
   const handleOpenQCForm = (order) => {
@@ -82,10 +87,10 @@ const QualityChecked = () => {
 
   const handleCompleteQC = async () => {
     if (!currentOrder) return;
-
+  
     const updatedPassed = qcResult === 'passed' ? (currentOrder.quantity - failedCount) : 0;
     const updatedFailed = qcResult === 'passed' ? failedCount : currentOrder.quantity;
-
+  
     try {
       const response = await fetch(`http://localhost:5000/api/quality-check/${currentOrder._id}`, {
         method: 'PUT',
@@ -98,20 +103,25 @@ const QualityChecked = () => {
           failed: updatedFailed,
         }),
       });
-
+  
       if (response.ok) {
         const updatedOrder = await response.json();
         const updatedOrders = orders.map(o =>
           o._id === currentOrder._id ? updatedOrder : o
         );
+        
         setOrders(updatedOrders);
         setShowQCForm(false);
         setCurrentOrder(null);
+  
+        await fetchOrders(); // ✅ Must be defined
+        console.log('Orders after update:', updatedOrders);
       }
     } catch (error) {
       console.error('Error completing QC:', error);
     }
   };
+  
 
   const handleCancelQCForm = () => {
     setShowQCForm(false);
@@ -227,8 +237,8 @@ const QualityChecked = () => {
                   </tr>
                 </thead>
                 <tbody>
-                {filteredOrders.map((order) => (
-                      <tr key={order._id || order.id} className="border-b hover:bg-gray-50 transition">
+                {filteredOrders.map((order,index) => (
+                      <tr key={ order.id ||index } className="border-b hover:bg-gray-50 transition">
                         <td className="py-3 px-4">{order.id}</td>
                         <td className="py-3 px-4 font-medium text-gray-900">{order.name}</td>
                         <td className="py-3 px-4">{order.category}</td>
