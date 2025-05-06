@@ -1,103 +1,117 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const Order = require('../models/Orders');
+const protect = require("../middleware/middleware");
+const Order = require("../models/Orders");
 
-// Create a new order
-router.post('/add', async (req, res) => {
-    try {
-        const { order_id, name, material, size, color, quantity } = req.body;
+// get all orders
+router.get("/", protect, async (req, res) => {
+  try {
+    let orders;
 
-        // Validation check
-        if (!order_id || !name || !material || !size || !color || !quantity) {
-            return res.status(400).json({ message: 'All fields are required' });
-        }
-
-        const newOrder = new Order({
-            order_id,
-            name,
-            material,
-            size,
-            color,
-            quantity
-        });
-
-        await newOrder.save();
-        res.status(201).json({
-            message: 'Order created successfully',
-            order: newOrder
-        });
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({
-            message: 'Server Error',
-            error: err.message
-        });
+    if (req.user.role === "manager") {
+      orders = await Order.find({});
+    } else {
+      orders = await Order.find({ user: req.user.id });
     }
+
+    res.json(orders);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
 });
 
-// Get all orders
-router.get('/', async (req, res) => {
-    try {
-        const orders = await Order.find();
-        res.status(200).json({
-            message: 'Orders fetched successfully',
-            orders
-        });
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({
-            message: 'Server Error',
-            error: err.message
-        });
+
+
+// get order by id
+router.get("/:id", protect, async (req, res) => {
+  try {
+    let order;
+
+    if (req.user.role === "manager") {
+     
+      order = await Order.findOne({ _id: req.params.id });
+    } else {
+     
+      order = await Order.findOne({ _id: req.params.id, user: req.user.id });
     }
+
+    if (!order) return res.status(404).json({ message: "Order not found" });
+    res.json(order);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
 });
 
-// Get a single order by order_id
-router.get('/:order_id', async (req, res) => {
-    try {
-        const order = await Order.findOne({ order_id: req.params.order_id });
-        if (!order) {
-            return res.status(404).json({ message: 'Order not found' });
-        }
 
-        res.status(200).json({
-            message: 'Order fetched successfully',
-            order
-        });
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({
-            message: 'Server Error',
-            error: err.message
-        });
+router.patch("/:id", protect, async (req, res) => {
+  try {
+    let order;
+
+    if (req.user.role === "manager") {
+      order = await Order.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    } else {
+      order = await Order.findOneAndUpdate(
+        { _id: req.params.id, user: req.user.id },
+        req.body,
+        { new: true }
+      );
     }
+
+    if (!order) return res.status(404).json({ message: "Order not found or unauthorized" });
+
+    res.json(order);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
 });
 
-// Update order status
-router.put('/:order_id/status', async (req, res) => {
-    try {
-        const { status } = req.body;
-        const order = await Order.findOneAndUpdate(
-            { order_id: req.params.order_id },
-            { status },
-            { new: true }
-        );
+//place order
+router.post("/place", protect, async (req, res) => {
+  try {
+    const {
+      clothType,
+      quantity,
+      weight,
+      dyeColor,
+      garmentTypes,
+      sizes,
+      notes,
+    } = req.body;
 
-        if (!order) {
-            return res.status(404).json({ message: 'Order not found' });
-        }
+    const currentDate = new Date().toISOString().split("T")[0];
 
-        res.status(200).json({
-            message: 'Order status updated successfully',
-            order
-        });
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({
-            message: 'Server Error',
-            error: err.message
-        });
-    }
+    const stages = [
+      { name: "Order Confirmed", status: "Completed", date: currentDate },
+      { name: "Dyeing", status: "Pending", date: null },
+      { name: "Cutting", status: "Pending", date: null },
+      { name: "Stitching", status: "Pending", date: null },
+      { name: "Packing", status: "Pending", date: null },
+      { name: "Shipped", status: "Pending", date: null },
+    ];
+
+    const order_id = 'ORD-' + Date.now(); 
+    
+    const newOrder = new Order({
+      order_id,
+      user: req.user.id,
+      clothType,
+      quantity,
+      weight,
+      dyeColor,
+      garmentTypes,
+      sizes,
+      notes,
+      stages,
+      packing_id: "PACK-" + Date.now(),
+    });
+
+
+    await newOrder.save();
+    res.status(201).json({ message: "Order placed successfully", order: newOrder });
+  } catch (err) {
+    console.error("Order placement error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
 });
 
 module.exports = router;
