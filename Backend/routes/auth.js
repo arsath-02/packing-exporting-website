@@ -1,65 +1,81 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
-const  jwt = require('jsonwebtoken');
+const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
 const router = express.Router();
 
+const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret';
+
+
+
+//register
 router.post('/register', async (req, res) => {
-    try {
-        const { name, email, password, confirmPassword, role } = req.body;
+  try {
+    const { email, password, role, department } = req.body;
 
-        if (await User.findOne({ email })) {
-            return res.status(400).json({ message: 'User already exists' });
-        }
 
-        if (password !== confirmPassword) {
-            return res.status(400).json({ message: 'Passwords do not match' });
-        }
-
-        const hashedPassword = await bcrypt.hash(password, 10);
-
-        const newUser = new User({
-            name,
-            email,
-            password: hashedPassword,
-            role
-        });
-
-        await newUser.save();
-        res.status(201).json({ message: 'User created successfully', user: newUser });
-
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ message: 'Server Error', error: err.message });
+    if (!email || !password || !role) {
+      return res.status(400).json({ message: 'Email, password, and role are required.' });
     }
+
+    if (role === 'supervisor' && !department) {
+      return res.status(400).json({ message: 'Department is required for supervisors.' });
+    }
+
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(409).json({ message: 'User already exists.' });
+    }
+
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const user = new User({ email, password: hashedPassword, role, department });
+    await user.save();
+
+    res.status(201).json({ statuscode:200 ,message: 'User registered successfully.',user });
+  } catch (err) {
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
 });
 
+//login
 router.post('/login', async (req, res) => {
-    try {
-        const { email, password } = req.body;
+  try {
+    const { email, password, role, department } = req.body;
 
-        if (!email || !password) {
-            return res.status(400).json({ message: 'Please provide email and password' });
-        }
-
-        const user = await User.findOne({ email });
-        if (!user) {
-            return res.status(400).json({ message: 'User does not exist' });
-        }
-
-        if (!await bcrypt.compare(password, user.password)) {
-            return res.status(400).json({ message: 'Invalid credentials' });
-        }
-
-        const token = jwt.sign({ userId: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1d' });
-
-        res.status(200).json({ message: 'Login successful', token, user });
-
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ message: 'Server Error', error: err.message });
+    if (!email || !password || !role) {
+      return res.status(400).json({ message: 'Email, password, and role are required.' });
     }
+
+    const user = await User.findOne({ email });
+    if (!user) return res.status(404).json({ message: 'User not found.' });
+
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) return res.status(401).json({ message: 'Invalid credentials.' });
+
+
+    if (user.role !== role) {
+      return res.status(403).json({ message: 'Role mismatch.' });
+    }
+
+ 
+    if (role === 'supervisor' && user.department !== department) {
+      return res.status(403).json({ message: 'Department mismatch for supervisor.' });
+    }
+
+    const token = jwt.sign(
+      { id: user._id, email: user.email, role: user.role, department: user.department },
+      JWT_SECRET,
+      { expiresIn: '1d' }
+    );
+
+    res.status(200).json({ message: 'Login successful', token, user });
+  } catch (err) {
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
 });
 
-module.exports= router;
+module.exports = router;
