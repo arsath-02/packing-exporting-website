@@ -1,45 +1,53 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FaTshirt, FaUserCog, FaBoxes, FaChartBar, FaIndustry, FaCheckCircle, FaPlay } from 'react-icons/fa';
 import { TbLogout } from 'react-icons/tb';
-import { MdOutlineColorLens } from 'react-icons/md';
-import { HiOutlineClipboardList } from 'react-icons/hi';
 import Sidebar from './Sidebar';
-
-const ordersData = [
-  {
-    id: 'ORD-2023-003',
-    customer: 'Robert Davis',
-    items: 'Shorts (80)',
-    color: 'Green',
-    colorCode: 'bg-green-500',
-    status: 'In Progress',
-    statusColor: 'bg-yellow-600',
-    action: 'Complete'
-  },
-  {
-    id: 'ORD-2023-007',
-    customer: 'Sarah Wilson',
-    items: 'T-shirts (60), Pants (40)',
-    color: 'Navy Blue',
-    colorCode: 'bg-blue-700',
-    status: 'Queued',
-    statusColor: 'bg-gray-700',
-    action: 'Start Dyeing'
-  },
-  {
-    id: 'ORD-2023-008',
-    customer: 'David Thompson',
-    items: 'T-shirts (100)',
-    color: 'Yellow',
-    colorCode: 'bg-yellow-400',
-    status: 'Queued',
-    statusColor: 'bg-gray-700',
-    action: 'Start Dyeing'
-  }
-];
+import axios from 'axios';
 
 const Dyeing = () => {
   const [activeTab, setActiveTab] = useState('active');
+  const [orders, setOrders] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await axios.get("http://localhost:5000/api/orders");
+        setOrders(res.data);
+        console.log("Fetched orders:", res.data);
+      } catch (e) {
+        console.log(`Error in fetching data: ${e.message}`);
+      }
+    };
+    fetchData();
+  }, []);
+
+  // Filtered groups
+  const queueOrders = orders.filter(order => order.status === 'Pending');
+  const inProgressOrders = orders.filter(order => order.status === 'In Progress');
+  const completedOrders = orders.filter(order => order.status === 'Completed');
+
+  const displayedOrders = activeTab === 'active'
+    ? orders.filter(order => order.status !== 'Completed')
+    : completedOrders;
+
+  const handleAction = async (order) => {
+    let newStatus = '';
+    if (order.status === 'Pending') newStatus = 'In Progress';
+    else if (order.status === 'In Progress') newStatus = 'Completed';
+    else return;
+
+    try {
+      const res = await axios.put(`http://localhost:5000/api/orders/${order._id}`, {
+        status: newStatus,
+      });
+
+      setOrders(prev =>
+        prev.map(o => o._id === order._id ? { ...o, status: newStatus } : o)
+      );
+    } catch (error) {
+      console.error('Error updating status:', error.message);
+    }
+  };
 
   return (
     <div className="flex min-h-screen text-white bg-black">
@@ -57,9 +65,9 @@ const Dyeing = () => {
 
         {/* Status Cards */}
         <div className="grid grid-cols-3 gap-6 mt-8">
-          <StatusCard count={2} label="Orders in Queue" subtext="Waiting to start dyeing process" />
-          <StatusCard count={1} label="Orders in Progress" subtext="Currently being dyed" />
-          <StatusCard count={2} label="Completed Orders" subtext="Ready for cutting department" />
+          <StatusCard count={queueOrders.length} label="Orders in Queue" subtext="Waiting to start dyeing process" />
+          <StatusCard count={inProgressOrders.length} label="Orders in Progress" subtext="Currently being dyed" />
+          <StatusCard count={completedOrders.length} label="Completed Orders" subtext="Ready for cutting department" />
         </div>
 
         {/* Tabs */}
@@ -68,7 +76,7 @@ const Dyeing = () => {
           <button className={`px-4 py-2 rounded ${activeTab === 'completed' ? 'bg-white text-black' : 'bg-gray-700'}`} onClick={() => setActiveTab('completed')}>Completed Orders</button>
         </div>
 
-        {/* Table */}
+        {/* Orders Table */}
         <div className="mt-6">
           <h3 className="text-xl font-semibold mb-4">Orders in Dyeing Process</h3>
           <div className="bg-[#1c1c1c] rounded-lg overflow-hidden">
@@ -84,19 +92,42 @@ const Dyeing = () => {
                 </tr>
               </thead>
               <tbody>
-                {ordersData.map(order => (
-                  <tr key={order.id} className="border-t border-gray-700">
-                    <td className="p-4">{order.id}</td>
-                    <td className="p-4">{order.customer}</td>
-                    <td className="p-4">{order.items}</td>
-                    <td className="p-4"><span className={`inline-block w-3 h-3 rounded-full ${order.colorCode} mr-2`}></span>{order.color}</td>
+                {displayedOrders.map(order => (
+                  <tr key={order._id} className="border-t border-gray-700">
+                    <td className="p-4">{order.order_id}</td>
+                    <td className="p-4">{order.customer || 'N/A'}</td>
                     <td className="p-4">
-                      <span className={`text-sm px-3 py-1 rounded-full ${order.statusColor}`}>{order.status}</span>
+                      {Object.entries(order.garmentTypes)
+                        .map(([type, qty]) => `${type} (${qty})`)
+                        .join(", ")}
                     </td>
                     <td className="p-4">
-                      <button className="flex items-center gap-2 px-4 py-1 rounded bg-white text-black">
-                        {order.action === 'Complete' ? <FaCheckCircle /> : <FaPlay />} {order.action}
-                      </button>
+                      <span
+                        className="inline-block w-3 h-3 rounded-full mr-2"
+                        style={{ backgroundColor: order.dyeColor?.toLowerCase() || '#ccc' }}
+                      ></span>
+                      {order.dyeColor}
+                    </td>
+                    <td className="p-4">
+                      <span className={`text-sm px-3 py-1 rounded-full ${
+                        order.status === 'Pending' ? 'bg-yellow-500' :
+                        order.status === 'In Progress' ? 'bg-blue-500' :
+                        order.status === 'Completed' ? 'bg-green-500' : 'bg-gray-500'
+                      }`}>
+                        {order.status}
+                      </span>
+                    </td>
+                    <td className="p-4">
+                      {(order.status === 'Completed') ? (
+                        <span className="text-green-400 flex items-center gap-2"><FaCheckCircle /> Completed</span>
+                      ) : (
+                        <button
+                          className="flex items-center gap-2 px-4 py-1 rounded bg-white text-black"
+                          onClick={() => handleAction(order)}
+                        >
+                          <FaPlay /> {order.status === 'Pending' ? 'Start' : 'Complete'}
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))}
@@ -108,12 +139,6 @@ const Dyeing = () => {
     </div>
   );
 };
-
-const SidebarItem = ({ icon, label, active }) => (
-  <div className={`flex items-center gap-3 px-4 py-2 rounded ${active ? 'bg-gray-700' : 'hover:bg-gray-800'}`}> 
-    {icon} <span>{label}</span>
-  </div>
-);
 
 const StatusCard = ({ count, label, subtext }) => (
   <div className="bg-[#1c1c1c] p-6 rounded-lg">

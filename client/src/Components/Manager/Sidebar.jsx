@@ -11,8 +11,7 @@ const Sidebar = () => {
     { name: 'Dyeing', icon: <Droplets />, path: '/Manager/dyeing' },
     { name: 'Production', icon: <Settings />, path: '/Manager/production' },
     { name: 'Packing', icon: <Package />, path: '/Manager/packing' },
-    { name: 'Employee Management', icon: <Users />, path: '/Manager/employee-manage' },
-    { name: 'Reports', icon: <BarChart2 />, path: '/Manager/reports' }
+    { name: 'Employee Management', icon: <Users />, path: '/Manager/employee-manage' }
   ];
   return (
     <div className="bg-black text-white w-64 min-h-screen p-4">

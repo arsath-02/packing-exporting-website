@@ -1,18 +1,27 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { PackageCheck, LogOut } from "lucide-react";
 import Sidebar from "./Sidebar";
+import axios from 'axios';
 
 const Packaging = () => {
   const [tab, setTab] = useState("processing");
+  const [orders,setOrders] = useState([]);
 
-  const orders = [
-    {
-      id: "ORD-2023-001",
-      customer: "John Doe",
-      items: "T-shirts (50), Shorts (30)",
-      status: "Quality Check",
-    },
-  ];
+
+  useEffect(()=>{
+    const fetchData = async()=>{
+      try{
+        const res = await axios.get("http://localhost:5000/api/orders");
+        setOrders(res.data);
+        console.log(res.data);
+      }
+      catch(e)
+      {
+        console.log(`Error fetching Data ${e.message}`);
+      }
+    }
+    fetchData();
+  },[])
 
   return (
     <div className="flex bg-black text-white min-h-screen">
@@ -90,10 +99,14 @@ const Packaging = () => {
             </thead>
             <tbody>
               {orders.map((order) => (
-                <tr key={order.id} className="border-b border-gray-800">
-                  <td className="py-2">{order.id}</td>
-                  <td className="py-2">{order.customer}</td>
-                  <td className="py-2">{order.items}</td>
+                <tr key={order._id} className="border-b border-gray-800">
+                  <td className="py-2">{order.order_id}</td>
+                  <td className="py-2">{order.customer || 'N/A'}</td>
+                  <td className="p-4">
+                      {Object.entries(order.garmentTypes)
+                        .map(([type, qty]) => `${type} (${qty})`)
+                        .join(", ")}
+                    </td>
                   <td className="py-2">
                     <span className="bg-yellow-600 px-3 py-1 rounded-full text-sm">
                       {order.status}

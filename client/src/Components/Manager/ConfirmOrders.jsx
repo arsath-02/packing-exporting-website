@@ -1,32 +1,49 @@
-import React from "react";
-import { FaBox, FaFlask, FaTshirt, FaUserTie, FaChartBar } from "react-icons/fa";
+import React, { useEffect, useState } from "react";
 import { BiLogOut } from "react-icons/bi";
 import Sidebar from "./Sidebar";
+import axios from "axios";
 
 const ConfirmOrders = () => {
-  const orders = [
-    {
-      id: "ORD-2023-004",
-      date: "2023-04-28",
-      customer: "John Smith",
-      items: "T-shirts (75), Pants (25)",
-      color: "Black",
-    },
-    {
-      id: "ORD-2023-005",
-      date: "2023-04-29",
-      customer: "Emily Johnson",
-      items: "Shorts (100)",
-      color: "Blue",
-    },
-    {
-      id: "ORD-2023-006",
-      date: "2023-04-30",
-      customer: "Michael Brown",
-      items: "T-shirts (50), Jackets (20)",
-      color: "Red",
-    },
-  ];
+  const [orders, setOrders] = useState([]);
+  const [users, setUsers] = useState({}); // Store user data by user ID
+  const [selectedOrder, setSelectedOrder] = useState(null); // Store selected order details for view
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // Fetch orders
+        const res = await axios.get("http://localhost:5000/api/orders");
+        setOrders(res.data);
+
+        // Fetch user data based on user IDs from orders
+        const userIds = res.data.map((order) => order.user); // Extract user IDs from orders
+        const uniqueUserIds = [...new Set(userIds)]; // Get unique user IDs
+
+        const usersData = await Promise.all(
+          uniqueUserIds.map((userId) =>
+            axios.get(`http://localhost:5000/api/users/${userId}`)
+          )
+        );
+
+        // Store users by their IDs
+        const usersMap = {};
+        usersData.forEach((response) => {
+          const user = response.data;
+          usersMap[user._id] = user.name; // Assuming the user's name is in `name` field
+        });
+
+        setUsers(usersMap); // Set the users map state
+      } catch (e) {
+        console.log(`Error fetching data ${e.message}`);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const handleViewDetails = (order) => {
+    setSelectedOrder(order); // Set selected order to view its details
+  };
 
   return (
     <div className="flex min-h-screen bg-black text-white">
@@ -51,21 +68,37 @@ const ConfirmOrders = () => {
                 <th className="pb-2">Order ID</th>
                 <th className="pb-2">Date</th>
                 <th className="pb-2">Customer</th>
+                <th className="pb-2">Cloth Type</th> {/* Added Cloth Type column */}
                 <th className="pb-2">Items</th>
                 <th className="pb-2">Color</th>
                 <th className="pb-2">Actions</th>
               </tr>
             </thead>
             <tbody>
-              {orders.map((order, index) => (
-                <tr key={index} className="border-b border-zinc-800 hover:bg-zinc-800">
-                  <td className="py-3">{order.id}</td>
-                  <td>{order.date}</td>
-                  <td>{order.customer}</td>
-                  <td>{order.items}</td>
-                  <td>{order.color}</td>
+              {orders.map((order) => (
+                <tr
+                  key={order._id}
+                  className="border-b border-zinc-800 hover:bg-zinc-800"
+                >
+                  <td className="py-3">{order.order_id}</td>
                   <td>
-                    <button className="bg-zinc-800 px-3 py-1 rounded border border-zinc-700 hover:bg-zinc-700">
+                    {order.createdAt
+                      ? new Date(order.createdAt).toLocaleDateString()
+                      : "N/A"}
+                  </td>
+                  <td>{users[order.user] || "N/A"}</td> {/* Display user name */}
+                  <td>{order.clothType}</td> {/* Display Cloth Type */}
+                  <td>
+                    {Object.entries(order.garmentTypes)
+                      .map(([type, qty]) => `${type} (${qty})`)
+                      .join(", ")}
+                  </td>
+                  <td>{order.dyeColor}</td>
+                  <td>
+                    <button
+                      className="bg-zinc-800 px-3 py-1 rounded border border-zinc-700 hover:bg-zinc-700"
+                      onClick={() => handleViewDetails(order)} // Call the function to set the selected order
+                    >
                       View Details
                     </button>
                   </td>
@@ -74,6 +107,30 @@ const ConfirmOrders = () => {
             </tbody>
           </table>
         </div>
+
+        {/* Display Selected Order Details */}
+        {selectedOrder && (
+          <div className="bg-zinc-900 p-6 mt-6 rounded-lg">
+            <h2 className="text-2xl font-semibold mb-4">Order Details</h2>
+            <div>
+              <p><strong>Order ID:</strong> {selectedOrder.order_id}</p>
+              <p><strong>Customer:</strong> {users[selectedOrder.user] || "N/A"}</p>
+              <p><strong>Cloth Type:</strong> {selectedOrder.clothType}</p>
+              <p><strong>Quantity:</strong> {selectedOrder.quantity}</p>
+              <p><strong>Garments:</strong></p>
+              <ul>
+                {Object.entries(selectedOrder.garmentTypes).map(([type, qty]) => (
+                  <li key={type}>{type}: {qty}</li>
+                ))}
+              </ul>
+              <p><strong>Dye Color:</strong> {selectedOrder.dyeColor}</p>
+              <p><strong>Order Status:</strong> {selectedOrder.status}</p>
+              <p><strong>Notes:</strong> {selectedOrder.notes}</p>
+              <p><strong>Created At:</strong> {new Date(selectedOrder.createdAt).toLocaleString()}</p>
+              {/* Add any other details you want to display here */}
+            </div>
+          </div>
+        )}
       </main>
     </div>
   );

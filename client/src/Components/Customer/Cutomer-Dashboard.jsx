@@ -73,8 +73,8 @@ const Dashboard = () => {
               Ordered on {order.createdAt ? new Date(order.createdAt).toLocaleDateString() : 'N/A'}
             </p>
             <p className="text-sm mb-2">
-  Items: {Object.entries(order.garmentTypes).map(([type, qty]) => `${type} (${qty})`).join(", ")}
-</p>
+              Items: {Object.entries(order.garmentTypes).map(([type, qty]) => `${type} (${qty})`).join(", ")}
+            </p>
 
             <p className="text-sm">Progress</p>
             <div className="h-3 w-full bg-gray-700 rounded-full">

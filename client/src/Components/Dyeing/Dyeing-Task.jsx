@@ -1,141 +1,151 @@
-import React from "react";
-import { FaUserEdit, FaPlay } from "react-icons/fa";
-import Sidebar from "./Sidebar";
+import React, { useState, useEffect } from 'react';
+import { FaTshirt, FaUserCog, FaBoxes, FaChartBar, FaIndustry, FaCheckCircle, FaPlay } from 'react-icons/fa';
+import { TbLogout } from 'react-icons/tb';
+import Sidebar from './Sidebar';
+import axios from 'axios';
 
-const DyeingTasks = () => {
-  const tasks = [
-    {
-      id: "DYE-001",
-      order: "ORD-2023-003",
-      description: "Prepare green dye for 80 shorts",
-      color: "Green",
-      colorCode: "bg-green-500",
-      assignedTo: "John Smith",
-      progress: "w-1/3",
-    },
-    {
-      id: "DYE-002",
-      order: "ORD-2023-007",
-      description: "Prepare navy blue dye for T-shirts and pants",
-      color: "Navy Blue",
-      colorCode: "bg-blue-800",
-      assignedTo: "Lisa Chen",
-      progress: "w-0",
-    },
-    {
-      id: "DYE-003",
-      order: "ORD-2023-008",
-      description: "Prepare yellow dye for 100 T-shirts",
-      color: "Yellow",
-      colorCode: "bg-yellow-400",
-      assignedTo: "John Smith, Mark Wilson",
-      progress: "w-0",
-    },
-  ];
+const DyeingTask = () => {
+  const [activeTab, setActiveTab] = useState('active');
+  const [orders, setOrders] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await axios.get("http://localhost:5000/api/orders");
+        setOrders(res.data);
+        console.log("Fetched orders:", res.data);
+      } catch (e) {
+        console.log(`Error in fetching data: ${e.message}`);
+      }
+    };
+    fetchData();
+  }, []);
+
+  // Filtered groups
+  const queueOrders = orders.filter(order => order.status === 'Pending');
+  const inProgressOrders = orders.filter(order => order.status === 'In Progress');
+  const completedOrders = orders.filter(order => order.status === 'Completed');
+
+  const displayedOrders = activeTab === 'active'
+    ? orders.filter(order => order.status !== 'Completed')
+    : completedOrders;
+
+  const handleAction = async (order) => {
+    let newStatus = '';
+    if (order.status === 'Pending') newStatus = 'In Progress';
+    else if (order.status === 'In Progress') newStatus = 'Completed';
+    else return;
+
+    try {
+      const res = await axios.put(`http://localhost:5000/api/orders/${order._id}`, {
+        status: newStatus,
+      });
+
+      setOrders(prev =>
+        prev.map(o => o._id === order._id ? { ...o, status: newStatus } : o)
+      );
+    } catch (error) {
+      console.error('Error updating status:', error.message);
+    }
+  };
 
   return (
-    <div className="flex min-h-screen bg-black text-white">
-      {/* Sidebar */}
+    <div className="flex min-h-screen text-white bg-black">
       <Sidebar />
-
-      {/* Main Content */}
-      <div className="flex-1 p-8">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold">Dyeing Tasks</h2>
-          <button className="text-sm text-gray-400 hover:text-white">Logout</button>
+      <main className="flex-1 p-8">
+        <div className="flex justify-between items-start">
+          <div>
+            <h2 className="text-3xl font-bold">Dyeing Department</h2>
+            <p className="text-gray-400">Manage and track orders in the dyeing process.</p>
+          </div>
+          <button className="text-gray-300 hover:text-white flex items-center gap-1">
+            <TbLogout className="text-lg" /> Logout
+          </button>
         </div>
 
-        <p className="text-gray-400 mb-4">
-          Manage and track dyeing tasks for garment orders.
-        </p>
-
-        {/* Stats Cards */}
-        <div className="grid grid-cols-3 gap-4 mb-6">
-          <div className="border border-gray-700 p-4 rounded">
-            <h3 className="text-lg font-bold">Pending Tasks</h3>
-            <p className="text-2xl">2</p>
-            <p className="text-gray-500 text-sm">Not yet started</p>
-          </div>
-          <div className="border border-gray-700 p-4 rounded">
-            <h3 className="text-lg font-bold">In Progress</h3>
-            <p className="text-2xl">1</p>
-            <p className="text-gray-500 text-sm">Currently being processed</p>
-          </div>
-          <div className="border border-gray-700 p-4 rounded">
-            <h3 className="text-lg font-bold">Completed</h3>
-            <p className="text-2xl">2</p>
-            <p className="text-gray-500 text-sm">Ready for next stage</p>
-          </div>
+        {/* Status Cards */}
+        <div className="grid grid-cols-3 gap-6 mt-8">
+          <StatusCard count={queueOrders.length} label="Orders in Queue" subtext="Waiting to start dyeing process" />
+          <StatusCard count={inProgressOrders.length} label="Orders in Progress" subtext="Currently being dyed" />
+          <StatusCard count={completedOrders.length} label="Completed Orders" subtext="Ready for cutting department" />
         </div>
 
         {/* Tabs */}
-        <div className="flex mb-4">
-          <button className="px-4 py-2 bg-white text-black rounded-l">
-            Active Tasks
-          </button>
-          <button className="px-4 py-2 bg-gray-700 text-white rounded-r">
-            Completed Tasks
-          </button>
+        <div className="flex gap-4 mt-10">
+          <button className={`px-4 py-2 rounded ${activeTab === 'active' ? 'bg-white text-black' : 'bg-gray-700'}`} onClick={() => setActiveTab('active')}>Active Orders</button>
+          <button className={`px-4 py-2 rounded ${activeTab === 'completed' ? 'bg-white text-black' : 'bg-gray-700'}`} onClick={() => setActiveTab('completed')}>Completed Orders</button>
         </div>
 
-        {/* Task Table */}
-        <div className="bg-zinc-900 rounded p-4">
-          <h3 className="text-lg font-bold mb-4">Current Dyeing Tasks</h3>
-          <table className="w-full text-left">
-            <thead>
-              <tr className="text-gray-400 text-sm">
-                <th className="py-2">Task ID</th>
-                <th>Order</th>
-                <th>Description</th>
-                <th>Color</th>
-                <th>Assigned To</th>
-                <th>Progress</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {tasks.map((task) => (
-                <tr key={task.id} className="border-t border-gray-700">
-                  <td className="py-2">{task.id}</td>
-                  <td>{task.order}</td>
-                  <td>{task.description}</td>
-                  <td className="flex items-center gap-2">
-                    <span
-                      className={`w-3 h-3 rounded-full ${task.colorCode}`}
-                    ></span>
-                    {task.color}
-                  </td>
-                  <td>{task.assignedTo}</td>
-                  <td>
-                    <div className="w-full bg-gray-600 rounded-full h-2">
-                      <div
-                        className={`h-2 bg-white rounded-full ${task.progress}`}
-                      ></div>
-                    </div>
-                  </td>
-                  <td className="flex gap-2 mt-1">
-                    {task.progress === "w-0" ? (
-                      <button className="flex items-center gap-1 px-3 py-1 bg-white text-black rounded">
-                        <FaPlay size={12} /> Start
-                      </button>
-                    ) : (
-                      <button className="flex items-center gap-1 px-3 py-1 bg-white text-black rounded">
-                        <FaUserEdit size={12} /> Update
-                      </button>
-                    )}
-                    <button className="px-2 py-1 border border-white rounded">
-                      Assign
-                    </button>
-                  </td>
+        {/* Orders Table */}
+        <div className="mt-6">
+          <h3 className="text-xl font-semibold mb-4">Orders in Dyeing Process</h3>
+          <div className="bg-[#1c1c1c] rounded-lg overflow-hidden">
+            <table className="w-full text-left">
+              <thead className="bg-[#2a2a2a]">
+                <tr>
+                  <th className="p-4">Order ID</th>
+                  <th className="p-4">Customer</th>
+                  <th className="p-4">Items</th>
+                  <th className="p-4">Color</th>
+                  <th className="p-4">Status</th>
+                  <th className="p-4">Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {displayedOrders.map(order => (
+                  <tr key={order._id} className="border-t border-gray-700">
+                    <td className="p-4">{order.order_id}</td>
+                    <td className="p-4">{order.customer || 'N/A'}</td>
+                    <td className="p-4">
+                      {Object.entries(order.garmentTypes)
+                        .map(([type, qty]) => `${type} (${qty})`)
+                        .join(", ")}
+                    </td>
+                    <td className="p-4">
+                      <span
+                        className="inline-block w-3 h-3 rounded-full mr-2"
+                        style={{ backgroundColor: order.dyeColor?.toLowerCase() || '#ccc' }}
+                      ></span>
+                      {order.dyeColor}
+                    </td>
+                    <td className="p-4">
+                      <span className={`text-sm px-3 py-1 rounded-full ${
+                        order.status === 'Pending' ? 'bg-yellow-500' :
+                        order.status === 'In Progress' ? 'bg-blue-500' :
+                        order.status === 'Completed' ? 'bg-green-500' : 'bg-gray-500'
+                      }`}>
+                        {order.status}
+                      </span>
+                    </td>
+                    <td className="p-4">
+                      {(order.status === 'Completed') ? (
+                        <span className="text-green-400 flex items-center gap-2"><FaCheckCircle /> Completed</span>
+                      ) : (
+                        <button
+                          className="flex items-center gap-2 px-4 py-1 rounded bg-white text-black"
+                          onClick={() => handleAction(order)}
+                        >
+                          <FaPlay /> {order.status === 'Pending' ? 'Start' : 'Complete'}
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 };
 
-export default DyeingTasks;
+const StatusCard = ({ count, label, subtext }) => (
+  <div className="bg-[#1c1c1c] p-6 rounded-lg">
+    <h4 className="text-3xl font-bold">{count}</h4>
+    <p className="text-sm text-gray-400 mt-1">{label}</p>
+    <p className="text-xs text-gray-500 mt-2">{subtext}</p>
+  </div>
+);
+
+export default DyeingTask;

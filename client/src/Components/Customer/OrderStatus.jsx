@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { FaCheckCircle, FaCircle, FaRedo } from 'react-icons/fa';
 import Sidebar from './Sidebar';
+import { useNavigate } from 'react-router-dom';
 
 const OrderStatus = () => {
   const [orders, setOrders] = useState([]);
   const [selectedOrder, setSelectedOrder] = useState(null);
-
+  const navigate = useNavigate();
   useEffect(() => {
     const fetchOrders = async () => {
       try {
@@ -59,7 +60,7 @@ const OrderStatus = () => {
       <div className="flex-1 p-6 overflow-auto">
         <div className="flex justify-between items-center">
           <h2 className="text-3xl font-bold">Order Status</h2>
-          <button className="bg-white text-black px-4 py-2 rounded font-semibold">Place New Order</button>
+          <button className="bg-white text-black px-4 py-2 rounded font-semibold" onClick={()=> navigate('/Customer/place-order')}>Place New Order</button>
         </div>
         <p className="text-gray-400 mb-6">Track the status of your garment orders.</p>
 
