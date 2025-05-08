@@ -7,47 +7,85 @@ import axios from 'axios';
 const Dyeing = () => {
   const [activeTab, setActiveTab] = useState('active');
   const [orders, setOrders] = useState([]);
+  const [filteredOrders, setFilteredOrders] = useState([]);
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchOrders = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/orders");
-        setOrders(res.data);
-        console.log("Fetched orders:", res.data);
-      } catch (e) {
-        console.log(`Error in fetching data: ${e.message}`);
+        const res = await axios.get('http://localhost:5000/api/orders');
+        if (res.status === 200) {
+          const allOrders = res.data;
+
+          // Filter orders that have "Dyeing" in their stages
+          const dyeingOrders = allOrders.filter(order =>
+            order.stages?.some(stage => stage.name === 'Dyeing')
+          );
+
+          setOrders(dyeingOrders);
+
+          // Filter only those where "Dyeing" is not completed
+          const activeDyeingOrders = dyeingOrders.filter(order =>
+            order.stages.find(stage => stage.name === 'Dyeing')?.status !== 'Completed'
+          );
+
+          setFilteredOrders(activeDyeingOrders);
+        }
+      } catch (error) {
+        console.error('Failed to fetch orders:', error.message);
       }
     };
-    fetchData();
+
+    fetchOrders();
   }, []);
 
-  // Filtered groups
-  const queueOrders = orders.filter(order => order.status === 'Pending');
-  const inProgressOrders = orders.filter(order => order.status === 'In Progress');
-  const completedOrders = orders.filter(order => order.status === 'Completed');
+  const handleStageAction = async (order, stageName) => {
+    const updatedStages = order.stages.map(stage =>
+      stage.name === stageName
+        ? { ...stage, status: stage.status === 'In Progress' ? 'Completed' : stage.status }
+        : stage
+    );
 
-  const displayedOrders = activeTab === 'active'
-    ? orders.filter(order => order.status !== 'Completed')
-    : completedOrders;
+    setOrders(prevOrders =>
+      prevOrders.map(o =>
+        o._id === order._id ? { ...o, stages: updatedStages } : o
+      )
+    );
 
-  const handleAction = async (order) => {
-    let newStatus = '';
-    if (order.status === 'Pending') newStatus = 'In Progress';
-    else if (order.status === 'In Progress') newStatus = 'Completed';
-    else return;
+    if (stageName === "Dyeing" && updatedStages.find(s => s.name === "Dyeing")?.status === "Completed") {
+      setFilteredOrders(prev =>
+        prev.filter(o => o._id !== order._id)
+      );
+    }
 
     try {
-      const res = await axios.put(`http://localhost:5000/api/orders/${order._id}`, {
-        status: newStatus,
+      const res = await axios.put(`http://localhost:5000/api/orders/${order._id}/stage`, {
+        stageName,
+        status: 'Completed',
       });
 
-      setOrders(prev =>
-        prev.map(o => o._id === order._id ? { ...o, status: newStatus } : o)
-      );
+      if (res.status === 200) {
+        console.log("Stage status updated successfully");
+      } else {
+        console.error("Failed to update stage status");
+      }
     } catch (error) {
-      console.error('Error updating status:', error.message);
+      console.error("Error updating stage:", error.message);
     }
   };
+
+  const handleAction = async (order) => {
+    // Only update the "Dyeing" stage to "Completed"
+    handleStageAction(order, 'Dyeing');
+  };
+  
+
+  const queueOrders = orders.filter(order => order.status === 'Pending');
+  const inProgressOrders = orders.filter(order => order.status === 'In Progress');
+  const completedOrders = orders.filter(order =>
+    order.stages?.find(s => s.name === 'Dyeing')?.status === 'Completed'
+  );
+
+  const displayedOrders = activeTab === 'active' ? filteredOrders : completedOrders;
 
   return (
     <div className="flex min-h-screen text-white bg-black">
@@ -63,20 +101,17 @@ const Dyeing = () => {
           </button>
         </div>
 
-        {/* Status Cards */}
         <div className="grid grid-cols-3 gap-6 mt-8">
           <StatusCard count={queueOrders.length} label="Orders in Queue" subtext="Waiting to start dyeing process" />
           <StatusCard count={inProgressOrders.length} label="Orders in Progress" subtext="Currently being dyed" />
           <StatusCard count={completedOrders.length} label="Completed Orders" subtext="Ready for cutting department" />
         </div>
 
-        {/* Tabs */}
         <div className="flex gap-4 mt-10">
           <button className={`px-4 py-2 rounded ${activeTab === 'active' ? 'bg-white text-black' : 'bg-gray-700'}`} onClick={() => setActiveTab('active')}>Active Orders</button>
           <button className={`px-4 py-2 rounded ${activeTab === 'completed' ? 'bg-white text-black' : 'bg-gray-700'}`} onClick={() => setActiveTab('completed')}>Completed Orders</button>
         </div>
 
-        {/* Orders Table */}
         <div className="mt-6">
           <h3 className="text-xl font-semibold mb-4">Orders in Dyeing Process</h3>
           <div className="bg-[#1c1c1c] rounded-lg overflow-hidden">

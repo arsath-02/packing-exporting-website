@@ -4,6 +4,7 @@ import axios from 'axios';
 
 const PlaceOrder = () => {
   const [formData, setFormData] = useState({
+    name: '',
     clothType: '',
     dyeColor: '',
     weight: '',
@@ -73,6 +74,7 @@ console.log(userId);
       });
 
       const orderPayload = {
+        name: formData.name,
         order_id: generateUniqueId('ORD'),
         packing_id: generateUniqueId('PACK'),
         user: userId, // User ID sourced from context or another method
@@ -94,6 +96,7 @@ console.log(userId);
       if (response.status === 200 || response.status === 201) {
         alert('Order placed successfully!');
         setFormData({
+          name: '',
           clothType: '',
           dyeColor: '',
           weight: '',
@@ -133,6 +136,17 @@ console.log(userId);
           <p className="text-sm text-gray-400 mb-6">Provide the specifications for your garment order.</p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div>
+              <label className="block mb-2">Customer Name</label>
+              <input
+                type="text"
+                name="name"
+                placeholder="Enter your name"
+                value={formData.name}
+                onChange={handleChange}
+                className="w-full bg-zinc-700 text-white p-2 rounded"
+              />
+            </div>
             <div>
               <label className="block mb-2">Type of Cloth</label>
               <select

@@ -7,7 +7,7 @@ const router = express.Router();
 //register
 router.post('/register', async (req, res) => {
   try {
-    const { email, password, role, department } = req.body;
+    const {name,phone, email, password, role, department } = req.body;
 
     if (!email || !password || !role) {
       return res.status(400).json({ message: 'Email, password, and role are required.' });
@@ -24,7 +24,7 @@ router.post('/register', async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const user = new User({ email, password: hashedPassword, role, department });
+    const user = new User({name,phone, email, password: hashedPassword, role, department });
     await user.save();
 
     res.status(201).json({ statuscode: 200, message: 'User registered successfully.', user });

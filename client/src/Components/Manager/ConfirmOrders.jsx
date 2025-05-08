@@ -5,34 +5,14 @@ import axios from "axios";
 
 const ConfirmOrders = () => {
   const [orders, setOrders] = useState([]);
-  const [users, setUsers] = useState({}); // Store user data by user ID
   const [selectedOrder, setSelectedOrder] = useState(null); // Store selected order details for view
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch orders
+        // Fetch orders directly from the API
         const res = await axios.get("http://localhost:5000/api/orders");
-        setOrders(res.data);
-
-        // Fetch user data based on user IDs from orders
-        const userIds = res.data.map((order) => order.user); // Extract user IDs from orders
-        const uniqueUserIds = [...new Set(userIds)]; // Get unique user IDs
-
-        const usersData = await Promise.all(
-          uniqueUserIds.map((userId) =>
-            axios.get(`http://localhost:5000/api/users/${userId}`)
-          )
-        );
-
-        // Store users by their IDs
-        const usersMap = {};
-        usersData.forEach((response) => {
-          const user = response.data;
-          usersMap[user._id] = user.name; // Assuming the user's name is in `name` field
-        });
-
-        setUsers(usersMap); // Set the users map state
+        setOrders(res.data); // Set orders state
       } catch (e) {
         console.log(`Error fetching data ${e.message}`);
       }
@@ -86,7 +66,7 @@ const ConfirmOrders = () => {
                       ? new Date(order.createdAt).toLocaleDateString()
                       : "N/A"}
                   </td>
-                  <td>{users[order.user] || "N/A"}</td> {/* Display user name */}
+                  <td>{order.name || "N/A"}</td> {/* Directly display name from the order */}
                   <td>{order.clothType}</td> {/* Display Cloth Type */}
                   <td>
                     {Object.entries(order.garmentTypes)
@@ -114,7 +94,7 @@ const ConfirmOrders = () => {
             <h2 className="text-2xl font-semibold mb-4">Order Details</h2>
             <div>
               <p><strong>Order ID:</strong> {selectedOrder.order_id}</p>
-              <p><strong>Customer:</strong> {users[selectedOrder.user] || "N/A"}</p>
+              <p><strong>Customer:</strong> {selectedOrder.name || "N/A"}</p> {/* Directly access name */}
               <p><strong>Cloth Type:</strong> {selectedOrder.clothType}</p>
               <p><strong>Quantity:</strong> {selectedOrder.quantity}</p>
               <p><strong>Garments:</strong></p>

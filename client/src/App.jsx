@@ -23,13 +23,14 @@ import Q_Packing from './Components/Quality/Q-Packing'
 import Hr_Dashboard from './Components/Hr/Hr-dashboard'
 import Emp_dir from './Components/Hr/Employee-dir'
 import Attendance from './Components/Hr/Attendance'
-
+import RegisterPage from './Register'
 const App = () => {
   return (
     <div>
       <BrowserRouter>
       <Routes>
         <Route path="/" element={<Login />} />
+        <Route path="/register" element={<RegisterPage />} />
         
         <Route path="/Customer/dashboard" element={<Cust_Dashboard />} />
         <Route path="/Customer/place-order" element={<PlaceOrder />}/>

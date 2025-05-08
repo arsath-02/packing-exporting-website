@@ -1,29 +1,31 @@
 const mongoose = require("mongoose");
 
 const stageSchema = new mongoose.Schema({
-    name: {
-      type: String,
-      enum: ["Order Confirmed", "Dyeing", "Cutting", "Stitching", "Packing", "Shipped"],
-      required: true,
-    },
-    status: {
-      type: String,
-      enum: ["Pending", "In Progress", "Completed"],
-      default: "Pending",
-    },
-    date: {
-        type: String,
-        default: null,
-      },
-  });
+  name: {
+    type: String,
+    enum: ["Order Confirmed", "Dyeing", "Cutting", "Stitching", "Packing", "Shipped"],
+    required: true,
+  },
+  status: {
+    type: String,
+    enum: ["Pending", "In Progress", "Completed"],
+    default: "Pending",
+  },
+  date: {
+    type: Date,
+    default: null,
+  },
+});
 
 const orderSchema = new mongoose.Schema({
-    order_id: {
-        type: String,
-        required: true,
-        unique: true
-      },
+  order_id: {
+    type: String,
+    required: true,
+    unique: true,
+    index: true,
+  },
   user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+  name: { type: String, required: true },
   clothType: { type: String, required: true },
   quantity: { type: Number, required: true },
   weight: { type: Number, required: true },
@@ -42,11 +44,16 @@ const orderSchema = new mongoose.Schema({
     xl: { type: Number, default: 0 },
   },
   notes: { type: String },
-  status: { type: String, enum: ["Pending", "In Progress", "Completed", "Cancelled"], default: "Pending" }, 
+  status: {
+    type: String,
+    enum: ["Pending", "In Progress", "Completed", "Cancelled"],
+    default: "Pending",
+  },
   packing_id: {
     type: String,
-    unique: true, // keep this if you want it to be unique
     required: true,
+    unique: true,
+    index: true,
   },
   createdAt: { type: Date, default: Date.now },
 });

@@ -21,8 +21,8 @@ const Production = () => {
   }, []);
 
   const filteredOrders = {
-    Cutting: orders.filter((o) => o.status === "Cutting In Progress"),
-    Stitching: orders.filter((o) => o.status === "Stitching In Progress"),
+    Cutting: orders.filter((o) => o.status === "Pending"),
+    Stitching: orders.filter((o) => o.status === "Pending"),
     Completed: orders.filter((o) => o.status === "Completed"),
   };
 

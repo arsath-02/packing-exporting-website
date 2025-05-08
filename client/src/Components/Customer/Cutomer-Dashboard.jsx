@@ -32,7 +32,7 @@ const Dashboard = () => {
       <div className="flex-1 p-6">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold">Customer Dashboard</h1>
-          <a href="/login" className="text-sm text-gray-300 hover:underline">Logout</a>
+          <a href="/" className="text-sm text-gray-300 hover:underline">Logout</a>
         </div>
 
         <p className="mb-4">Welcome back! Here's an overview of your recent orders.</p>
