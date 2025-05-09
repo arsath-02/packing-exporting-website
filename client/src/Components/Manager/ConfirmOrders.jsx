@@ -8,7 +8,8 @@ import { FaCheck,FaTimes } from "react-icons/fa";
 const ConfirmOrders = () => {
   const [porders, setpOrders] = useState([]);
   const [corders,setcOrders]=useState([]);
-  const [selectedOrder, setSelectedOrder] = useState(null); // Store selected order details for view
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [show,setShow]=useState(false); // Store selected order details for view
   const navigate = useNavigate();
   useEffect(() => {
     const fetchData = async () => {
@@ -68,6 +69,7 @@ const ConfirmOrders = () => {
                 <th className="pb-2">Status</th>
                 <th className="pb-2">Color</th>
                 <th className="pb-2">Actions</th>
+                <th className="pb-2">Update</th>
               </tr>
             </thead>
             <tbody>
@@ -94,11 +96,25 @@ const ConfirmOrders = () => {
                   <td>
                     <button
                       className="bg-zinc-800 px-3 py-1 rounded border border-zinc-700 hover:bg-zinc-700"
-                      onClick={() => handleViewDetails(order)} // Call the function to set the selected order
+                      onClick={() =>{setShow(!show); handleViewDetails(order)}} // Call the function to set the selected order
                     >
                       View Details
                     </button>
                   </td>
+                  <td className="flex gap-2 mt-2">
+                      <button
+                        className="bg-green-600 p-2 rounded-2xl hover:bg-green-700 text-white"
+                        onClick={() => handleConfirm(order)}
+                      >
+                        <FaCheck />
+                      </button>
+                      <button
+                        className="bg-red-600 p-2 rounded-2xl hover:bg-red-700 text-white"
+                        onClick={() =>{  handleDecline(order)}}
+                      >
+                        <FaTimes />
+                      </button>
+                    </td>
                 </tr>
               ))}
             </tbody>
@@ -140,20 +156,15 @@ const ConfirmOrders = () => {
                   </td>
                   <td><div className="rounded-lg bg-green-500 w-25 text-center text-black">{order.status}</div></td>
                   <td>{order.dyeColor}</td>
-                  <td className="flex gap-2 mt-2">
-                      <button
-                        className="bg-green-600 p-2 rounded-2xl hover:bg-green-700 text-white"
-                        onClick={() => handleConfirm(order)}
-                      >
-                        <FaCheck />
-                      </button>
-                      <button
-                        className="bg-red-600 p-2 rounded-2xl hover:bg-red-700 text-white"
-                        onClick={() => handleDecline(order)}
-                      >
-                        <FaTimes />
-                      </button>
-                    </td>
+                  <td>
+                    <button
+                      className="bg-zinc-800 px-3 py-1 rounded border border-zinc-700 hover:bg-zinc-700"
+                      onClick={() =>{setShow(!show); handleViewDetails(order)}} // Call the function to set the selected order
+                    >
+                      View Details
+                    </button>
+                  </td>
+
                 </tr>
               ))}
             </tbody>
@@ -162,7 +173,7 @@ const ConfirmOrders = () => {
 
 
         {/* Display Selected Order Details */}
-        {selectedOrder && (
+        {selectedOrder&&show && (
           <div className="bg-zinc-900 p-6 mt-6 rounded-lg">
             <h2 className="text-2xl font-semibold mb-4">Order Details</h2>
             <div>
