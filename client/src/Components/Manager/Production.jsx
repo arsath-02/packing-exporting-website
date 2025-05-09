@@ -2,10 +2,14 @@ import React, { useState, useEffect } from "react";
 import Sidebar from "./Sidebar";
 import axios from "axios";
 import { PackageCheck } from "lucide-react";
+import { BiLogOut } from "react-icons/bi";
+import { useNavigate } from "react-router-dom";
 
 const Production = () => {
   const [tab, setTab] = useState("Cutting");
   const [orders, setOrders] = useState([]);
+  const navigate = useNavigate();
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -33,7 +37,9 @@ const Production = () => {
       <div className="flex-1 p-8">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold">Production Department</h1>
-          <button className="text-sm text-blue-400">Logout</button>
+           <button className="text-gray-300 hover:text-white flex items-center gap-1" onClick={()=> navigate('/')}>
+                      <BiLogOut className="text-lg" /> Logout
+                    </button>
         </div>
 
         <p className="text-gray-400 mb-6">

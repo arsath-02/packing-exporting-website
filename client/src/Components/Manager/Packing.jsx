@@ -2,11 +2,13 @@ import { useEffect, useState } from "react";
 import { PackageCheck, LogOut } from "lucide-react";
 import Sidebar from "./Sidebar";
 import axios from 'axios';
+import { useNavigate } from "react-router-dom";
+import { BiLogOut } from "react-icons/bi";
 
 const Packaging = () => {
   const [tab, setTab] = useState("processing");
   const [orders,setOrders] = useState([]);
-
+  const navigate = useNavigate();
 
   useEffect(()=>{
     const fetchData = async()=>{
@@ -30,8 +32,8 @@ const Packaging = () => {
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold">Packaging & Export</h1>
-          <button className="flex items-center gap-2 text-gray-300 hover:text-white">
-            <LogOut size={18} />
+          <button className="flex items-center gap-2 text-gray-300 hover:text-white" onClick={()=> navigate('/')}>
+            <BiLogOut size={18} />
             Logout
           </button>
         </div>

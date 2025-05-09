@@ -2,12 +2,14 @@ import React, { useEffect, useState } from "react";
 import { BiLogOut } from "react-icons/bi";
 import Sidebar from "./Sidebar";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { FaCheck,FaTimes } from "react-icons/fa";
 
 const ConfirmOrders = () => {
   const [porders, setpOrders] = useState([]);
   const [corders,setcOrders]=useState([]);
   const [selectedOrder, setSelectedOrder] = useState(null); // Store selected order details for view
-
+  const navigate = useNavigate();
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -30,6 +32,14 @@ const ConfirmOrders = () => {
     setSelectedOrder(order); // Set selected order to view its details
   };
 
+  const handleConfirm = () =>{
+
+  }
+
+  const handleDecline = () =>{
+
+  }
+
   return (
     <div className="flex min-h-screen bg-black text-white">
       {/* Sidebar */}
@@ -39,7 +49,7 @@ const ConfirmOrders = () => {
       <main className="flex-1 p-8">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-semibold">Confirm Orders</h1>
-          <button className="flex items-center gap-1 text-white hover:text-red-500">
+          <button className="flex items-center gap-1 text-white hover:text-red-500" onClick={()=> navigate('/')}>
             <BiLogOut /> Logout
           </button>
         </div>
@@ -126,14 +136,20 @@ const ConfirmOrders = () => {
                       .join(", ")}
                   </td>
                   <td>{order.dyeColor}</td>
-                  <td>
-                    <button
-                      className="bg-zinc-800 px-3 py-1 rounded border border-zinc-700 hover:bg-zinc-700"
-                      onClick={() => handleViewDetails(order)} // Call the function to set the selected order
-                    >
-                      View Details
-                    </button>
-                  </td>
+                  <td className="flex gap-2 mt-2">
+                      <button
+                        className="bg-green-600 p-2 rounded-2xl hover:bg-green-700 text-white"
+                        onClick={() => handleConfirm(order)}
+                      >
+                        <FaCheck />
+                      </button>
+                      <button
+                        className="bg-red-600 p-2 rounded-2xl hover:bg-red-700 text-white"
+                        onClick={() => handleDecline(order)}
+                      >
+                        <FaTimes />
+                      </button>
+                    </td>
                 </tr>
               ))}
             </tbody>

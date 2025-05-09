@@ -2,10 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { Clock, Droplets, Settings, Package, UserCheck } from 'lucide-react';
 import Sidebar from './Sidebar';
 import axios from 'axios';
+import { BiLogOut } from "react-icons/bi";
+import { useNavigate } from 'react-router-dom';
 
 const ManagerDashboard = () => {
   const [activities, setActivities] = useState([]);
   const [deptStatus, setDeptStatus] = useState({});
+  const navigate = useNavigate();
 
   const [dashboardStats, setDashboardStats] = useState({
     pendingOrders: 0,
@@ -41,7 +44,9 @@ const ManagerDashboard = () => {
             <p className="text-gray-400">Welcome back! Here's an overview of the current operations.</p>
           </div>
           <div className="text-gray-400 cursor-pointer hover:text-white flex items-center gap-1">
-            <a href='/'>Logout</a>
+            <button className="flex items-center gap-1 text-white hover:text-red-500" onClick={()=> navigate('/')}>
+              <BiLogOut /> Logout
+            </button>
           </div>
         </div>
 

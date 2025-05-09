@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { FaTshirt, FaUserCog, FaBoxes, FaChartBar, FaIndustry, FaCheckCircle, FaPlay } from 'react-icons/fa';
-import { TbLogout } from 'react-icons/tb';
 import Sidebar from './Sidebar';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+import { BiLogOut } from "react-icons/bi";
 
 const Dyeing = () => {
   const [activeTab, setActiveTab] = useState('active');
   const [orders, setOrders] = useState([]);
   const [filteredOrders, setFilteredOrders] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -96,8 +98,8 @@ const Dyeing = () => {
             <h2 className="text-3xl font-bold">Dyeing Department</h2>
             <p className="text-gray-400">Manage and track orders in the dyeing process.</p>
           </div>
-          <button className="text-gray-300 hover:text-white flex items-center gap-1">
-            <TbLogout className="text-lg" /> Logout
+          <button className="text-gray-300 hover:text-red-500 flex items-center gap-1" onClick={()=> navigate('/')}>
+            <BiLogOut className="text-lg " /> Logout
           </button>
         </div>
 
