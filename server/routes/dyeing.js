@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 // const Order = require('../models/Order'); // Assuming you have an Order model
-const order=require("../models/Orders");
+const Order=require("../models/Orders");
 const Dye = require("../models/Dye");
 // PUT /api/orders/:id/stage
 router.put('/:id/stage', async (req, res) => {
@@ -25,7 +25,7 @@ router.put('/:id/stage', async (req, res) => {
 });
 router.get("/", async (req, res) => {
   try {
-    await Order.findByIdAndUpdate(id,{ status: "Pending" }, { new: true },{stages:"dyeing"});
+    // await Order.findByIdAndUpdate(id,{ status: "Pending" }, { new: true },{stages:"dyeing"});
     const orders = await Dye.find({});
     res.status(200).json(orders);
   }
@@ -36,7 +36,7 @@ router.get("/", async (req, res) => {
 router.put("/", async (req, res) => {
   try {
   const {id}=req.body;
-  await Order.findByIdAndUpdate(id,{ status: "In Progress" }, { new: true },{stages:"dyeing"});
+  // await Order.findByIdAndUpdate(id,{ status: "In Progress" }, { new: true },{stages:"dyeing"});
   const order=await Dye.findByIdAndUpdate(
     id,
     { status: "In Progress" },
@@ -54,7 +54,7 @@ router.put("/", async (req, res) => {
 router.put("/put2",async (req,res)=>{
   try{
     const {id}=req.body;
-    await Order.findByIdAndUpdate(id,{ status: "Complete" }, { new: true },{stages:"dyeing"});
+    // await Order.findByIdAndUpdate(id,{ status: "Complete" }, { new: true },{stages:"dyeing"});
     const order=await Dye.findByIdAndUpdate(
       id,{
         status:"Completed"
