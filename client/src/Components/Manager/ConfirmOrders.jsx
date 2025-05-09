@@ -33,11 +33,28 @@ const ConfirmOrders = () => {
     setSelectedOrder(order); // Set selected order to view its details
   };
 
-  const handleConfirm = () =>{
-
+  const handleConfirm = async (e) =>{
+    console.log("Confirm order",e)
+    const orderId = e._id;
+    const res=axios.post(`http://localhost:5000/api/orders/updateDye`,{id:orderId})
+    const res1 = await axios.get("http://localhost:5000/api/orders");
+    console.log(res1.data);
+    const data1=res1.data.filter((order) => order.status == "Pending");
+    const data2=res1.data.filter((order) => order.status == "Completed"); //
+    setpOrders(data1);
+    setcOrders(data2);
   }
 
-  const handleDecline = () =>{
+  const handleDecline = async (e) =>{
+    console.log("Decline order",e)
+    const orderId = e._id;
+    const res=axios.put(`http://localhost:5000/api/orders/update`,{id:orderId})
+    const res1 = await axios.get("http://localhost:5000/api/orders");
+    console.log(res1.data);
+    const data1=res1.data.filter((order) => order.status == "Pending");
+    const data2=res1.data.filter((order) => order.status == "Completed"); //
+    setpOrders(data1);
+    setcOrders(data2);
 
   }
 

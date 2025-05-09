@@ -179,7 +179,7 @@ router.put('/:id/stage', async (req, res) => {
 // get all orders
 router.get("/", async (req, res) => {
   try {
-   
+
     const orders = await Order.find({});
     res.json(orders);
   } catch (err) {
@@ -197,7 +197,50 @@ router.get("/:id", async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
+router.put("/update", async (req, res) => {
+  try {
+    const { id } = req.body;
 
+    const order = await Order.findByIdAndUpdate(
+      id,
+      { status: "Declined" },
+      { new: true }
+    );
+
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+
+    res.json(order);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+router.post("/updateDye",async(req,res)=>{
+  try {
+    const { id } = req.body;
+
+    const order = await Order.findById(
+      id,
+    );
+    const dye= new Dye(order);
+    dye.save();
+
+    const order1 = await Order.findByIdAndUpdate(
+      id,
+      { stage:"dye supervisor" },
+      { new: true }
+    );
+
+
+    if(!order) {
+      return res.status(404).json({ message: "Order not found" });
+
+}}
+catch (err) {
+    res.status(500).json({ message: err.message });
+  }});
 // update order by id
 router.patch("/:id", async (req, res) => {
   try {
