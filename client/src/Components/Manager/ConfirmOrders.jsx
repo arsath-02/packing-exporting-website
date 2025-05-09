@@ -65,6 +65,7 @@ const ConfirmOrders = () => {
                 <th className="pb-2">Customer</th>
                 <th className="pb-2">Cloth Type</th> {/* Added Cloth Type column */}
                 <th className="pb-2">Items</th>
+                <th className="pb-2">Status</th>
                 <th className="pb-2">Color</th>
                 <th className="pb-2">Actions</th>
               </tr>
@@ -88,6 +89,7 @@ const ConfirmOrders = () => {
                       .map(([type, qty]) => `${type} (${qty})`)
                       .join(", ")}
                   </td>
+                  <td><div className="rounded-lg bg-yellow-500 w-25 text-center text-black">{order.status}</div></td>
                   <td>{order.dyeColor}</td>
                   <td>
                     <button
@@ -110,8 +112,9 @@ const ConfirmOrders = () => {
                 <th className="pb-2">Order ID</th>
                 <th className="pb-2">Date</th>
                 <th className="pb-2">Customer</th>
-                <th className="pb-2">Cloth Type</th> {/* Added Cloth Type column */}
+                <th className="pb-2">Cloth Type</th>
                 <th className="pb-2">Items</th>
+                <th className="pb-2">Status</th>
                 <th className="pb-2">Color</th>
                 <th className="pb-2">Actions</th>
               </tr>
@@ -135,6 +138,7 @@ const ConfirmOrders = () => {
                       .map(([type, qty]) => `${type} (${qty})`)
                       .join(", ")}
                   </td>
+                  <td><div className="rounded-lg bg-green-500 w-25 text-center text-black">{order.status}</div></td>
                   <td>{order.dyeColor}</td>
                   <td className="flex gap-2 mt-2">
                       <button
