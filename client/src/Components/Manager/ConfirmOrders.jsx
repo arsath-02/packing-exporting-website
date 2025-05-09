@@ -17,8 +17,8 @@ const ConfirmOrders = () => {
 
         const res = await axios.get("http://localhost:5000/api/orders");
         console.log(res.data);
-        const data1=res.data.filter((order) => order.status == "Pending");
-        const data2=res.data.filter((order) => order.status == "Completed"); //
+        const data1=res.data.filter((order) => order.status == "Pending" && (order.stages == "manager"));
+        const data2=res.data.filter((order) => order.status == "Completed" && (order.stages == "manager")); //
         setpOrders(data1);
         setcOrders(data2);// Set orders state
       } catch (e) {
@@ -39,8 +39,9 @@ const ConfirmOrders = () => {
     const res=axios.post(`http://localhost:5000/api/orders/updateDye`,{id:orderId})
     const res1 = await axios.get("http://localhost:5000/api/orders");
     console.log(res1.data);
-    const data1=res1.data.filter((order) => order.status == "Pending");
-    const data2=res1.data.filter((order) => order.status == "Completed"); //
+
+    const data1=res1.data.filter((order) => (order.status == "Pending")&& (order.stages == "manager"));
+    const data2=res1.data.filter((order) =>( order.status == "Completed") && (order.stages == "manager")); //
     setpOrders(data1);
     setcOrders(data2);
   }
@@ -51,8 +52,9 @@ const ConfirmOrders = () => {
     const res=axios.put(`http://localhost:5000/api/orders/update`,{id:orderId})
     const res1 = await axios.get("http://localhost:5000/api/orders");
     console.log(res1.data);
-    const data1=res1.data.filter((order) => order.status == "Pending");
-    const data2=res1.data.filter((order) => order.status == "Completed"); //
+    console.log(order.status == "Pending" && order.stages == "manager");
+    const data1=res1.data.filter((order) => order.status == "Pending" && order.stages == "manager");
+    const data2=res1.data.filter((order) => order.status == "Completed" && order.stages == "manager"); //
     setpOrders(data1);
     setcOrders(data2);
 
@@ -81,7 +83,7 @@ const ConfirmOrders = () => {
                 <th className="pb-2">Order ID</th>
                 <th className="pb-2">Date</th>
                 <th className="pb-2">Customer</th>
-                <th className="pb-2">Cloth Type</th> {/* Added Cloth Type column */}
+                <th className="pb-2">Cloth Type</th>
                 <th className="pb-2">Items</th>
                 <th className="pb-2">Status</th>
                 <th className="pb-2">Color</th>
