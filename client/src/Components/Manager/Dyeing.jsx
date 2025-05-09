@@ -1,14 +1,14 @@
+
 import React, { useState, useEffect } from 'react';
-import { FaTshirt, FaUserCog, FaBoxes, FaChartBar, FaIndustry, FaCheckCircle, FaPlay } from 'react-icons/fa';
+import { FaCheckCircle, FaPlay } from 'react-icons/fa';
+import { BiLogOut } from "react-icons/bi";
 import Sidebar from './Sidebar';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { BiLogOut } from "react-icons/bi";
 
 const Dyeing = () => {
   const [activeTab, setActiveTab] = useState('active');
-   const [orders, setOrders] = useState([]);
-  // const [filteredOrders, setFilteredOrders] = useState([]);
+  const [orders, setOrders] = useState([]);
   const [displayedOrders, setDisplayedOrders] = useState([]);
   const navigate = useNavigate();
 
@@ -16,19 +16,12 @@ const Dyeing = () => {
     const fetchOrders = async () => {
       try {
         const res = await axios.get('http://localhost:5000/api/dyeing');
+        const allOrders = res.data;
+        const dyeingOrders = allOrders.filter((order) =>
+          order.stages === 'Dyeing' || order.stages?.toLowerCase().startsWith('dye')
+        );
 
-          const allOrders = res.data;
-
-          // Filter orders that have "Dyeing" in their stages
-          const dyeingOrders = allOrders.filter((order) => (order.stages === 'Dyeing') || order.stages.startsWith('dye'))
-
-
-          setOrders(dyeingOrders);
-          setDisplayedOrders(dyeingOrders);
-          // Filter only those where "Dyeing" is not completed
-
-
-
+        setOrders(dyeingOrders);
       } catch (error) {
         console.error('Failed to fetch orders:', error.message);
       }
@@ -37,12 +30,33 @@ const Dyeing = () => {
     fetchOrders();
   }, []);
 
+  useEffect(() => {
+    const filtered = activeTab === 'active'
+      ? orders.filter(order => order.status !== 'Completed')
+      : orders.filter(order => order.status === 'Completed');
+    setDisplayedOrders(filtered);
+  }, [orders, activeTab]);
 
+  const handleAction = async (order) => {
+    try {
+      const updatedStatus =
+        order.status === 'Pending' ? 'In Progress' :
+        order.status === 'In Progress' ? 'Completed' : order.status;
 
+      const updatedOrder = { ...order, status: updatedStatus };
+      await axios.put(`http://localhost:5000/api/dyeing/${order._id}`, updatedOrder);
 
+      setOrders(prevOrders =>
+        prevOrders.map(o => (o._id === order._id ? updatedOrder : o))
+      );
+    } catch (error) {
+      console.error('Failed to update order status:', error.message);
+    }
+  };
 
-
-  // const displayedOrders = activeTab === 'active' ? filteredOrders : completedOrders;
+  const queueOrders = orders.filter(order => order.status === 'Pending');
+  const inProgressOrders = orders.filter(order => order.status === 'In Progress');
+  const completedOrders = orders.filter(order => order.status === 'Completed');
 
   return (
     <div className="flex min-h-screen text-white bg-black">
@@ -53,20 +67,30 @@ const Dyeing = () => {
             <h2 className="text-3xl font-bold">Dyeing Department</h2>
             <p className="text-gray-400">Manage and track orders in the dyeing process.</p>
           </div>
-          <button className="text-gray-300 hover:text-red-500 flex items-center gap-1" onClick={()=> navigate('/')}>
-            <BiLogOut className="text-lg " /> Logout
+          <button className="text-gray-300 hover:text-red-500 flex items-center gap-1" onClick={() => navigate('/')}>
+            <BiLogOut className="text-lg" /> Logout
           </button>
         </div>
 
-        {/* <div className="grid grid-cols-3 gap-6 mt-8">
+        <div className="grid grid-cols-3 gap-6 mt-8">
           <StatusCard count={queueOrders.length} label="Orders in Queue" subtext="Waiting to start dyeing process" />
           <StatusCard count={inProgressOrders.length} label="Orders in Progress" subtext="Currently being dyed" />
           <StatusCard count={completedOrders.length} label="Completed Orders" subtext="Ready for cutting department" />
-        </div> */}
+        </div>
 
         <div className="flex gap-4 mt-10">
-          <button className={`px-4 py-2 rounded ${activeTab === 'active' ? 'bg-white text-black' : 'bg-gray-700'}`} onClick={() => setActiveTab('active')}>Active Orders</button>
-          <button className={`px-4 py-2 rounded ${activeTab === 'completed' ? 'bg-white text-black' : 'bg-gray-700'}`} onClick={() => setActiveTab('completed')}>Completed Orders</button>
+          <button
+            className={`px-4 py-2 rounded ${activeTab === 'active' ? 'bg-white text-black' : 'bg-gray-700'}`}
+            onClick={() => setActiveTab('active')}
+          >
+            Active Orders
+          </button>
+          <button
+            className={`px-4 py-2 rounded ${activeTab === 'completed' ? 'bg-white text-black' : 'bg-gray-700'}`}
+            onClick={() => setActiveTab('completed')}
+          >
+            Completed Orders
+          </button>
         </div>
 
         <div className="mt-6">
@@ -89,9 +113,11 @@ const Dyeing = () => {
                     <td className="p-4">{order.order_id}</td>
                     <td className="p-4">{order.customer || 'N/A'}</td>
                     <td className="p-4">
-                      {Object.entries(order.garmentTypes)
-                        .map(([type, qty]) => `${type} (${qty})`)
-                        .join(", ")}
+                      {order.garmentTypes
+                        ? Object.entries(order.garmentTypes)
+                            .map(([type, qty]) => `${type} (${qty})`)
+                            .join(", ")
+                        : 'N/A'}
                     </td>
                     <td className="p-4">
                       <span
@@ -111,7 +137,9 @@ const Dyeing = () => {
                     </td>
                     <td className="p-4">
                       {(order.status === 'Completed') ? (
-                        <span className="text-green-400 flex items-center gap-2"><FaCheckCircle /> Completed</span>
+                        <span className="text-green-400 flex items-center gap-2">
+                          <FaCheckCircle /> Completed
+                        </span>
                       ) : (
                         <button
                           className="flex items-center gap-2 px-4 py-1 rounded bg-white text-black"
