@@ -4,15 +4,20 @@ import Sidebar from "./Sidebar";
 import axios from "axios";
 
 const ConfirmOrders = () => {
-  const [orders, setOrders] = useState([]);
+  const [porders, setpOrders] = useState([]);
+  const [corders,setcOrders]=useState([]);
   const [selectedOrder, setSelectedOrder] = useState(null); // Store selected order details for view
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch orders directly from the API
+
         const res = await axios.get("http://localhost:5000/api/orders");
-        setOrders(res.data); // Set orders state
+        console.log(res.data);
+        const data1=res.data.filter((order) => order.status == "Pending");
+        const data2=res.data.filter((order) => order.status == "Completed"); //
+        setpOrders(data1);
+        setcOrders(data2);// Set orders state
       } catch (e) {
         console.log(`Error fetching data ${e.message}`);
       }
@@ -55,7 +60,7 @@ const ConfirmOrders = () => {
               </tr>
             </thead>
             <tbody>
-              {orders.map((order) => (
+              {porders.map((order) => (
                 <tr
                   key={order._id}
                   className="border-b border-zinc-800 hover:bg-zinc-800"
@@ -87,6 +92,54 @@ const ConfirmOrders = () => {
             </tbody>
           </table>
         </div>
+        <div className="bg-zinc-900 p-6 rounded-lg">
+          <h2 className="text-xl font-semibold mb-4">Completed Orders</h2>
+          <table className="w-full text-left">
+            <thead className="border-b border-zinc-700">
+              <tr>
+                <th className="pb-2">Order ID</th>
+                <th className="pb-2">Date</th>
+                <th className="pb-2">Customer</th>
+                <th className="pb-2">Cloth Type</th> {/* Added Cloth Type column */}
+                <th className="pb-2">Items</th>
+                <th className="pb-2">Color</th>
+                <th className="pb-2">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {corders.map((order) => (
+                <tr
+                  key={order._id}
+                  className="border-b border-zinc-800 hover:bg-zinc-800"
+                >
+                  <td className="py-3">{order.order_id}</td>
+                  <td>
+                    {order.createdAt
+                      ? new Date(order.createdAt).toLocaleDateString()
+                      : "N/A"}
+                  </td>
+                  <td>{order.name || "N/A"}</td> {/* Directly display name from the order */}
+                  <td>{order.clothType}</td> {/* Display Cloth Type */}
+                  <td>
+                    {Object.entries(order.garmentTypes)
+                      .map(([type, qty]) => `${type} (${qty})`)
+                      .join(", ")}
+                  </td>
+                  <td>{order.dyeColor}</td>
+                  <td>
+                    <button
+                      className="bg-zinc-800 px-3 py-1 rounded border border-zinc-700 hover:bg-zinc-700"
+                      onClick={() => handleViewDetails(order)} // Call the function to set the selected order
+                    >
+                      View Details
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
 
         {/* Display Selected Order Details */}
         {selectedOrder && (
