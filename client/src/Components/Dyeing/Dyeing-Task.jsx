@@ -11,7 +11,7 @@ const DyeingTask = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/orders");
+        const res = await axios.get("http://localhost:5000/api/dyeing");
         setOrders(res.data);
         console.log("Fetched orders:", res.data);
       } catch (e) {
@@ -31,21 +31,26 @@ const DyeingTask = () => {
     : completedOrders;
 
   const handleAction = async (order) => {
-    let newStatus = '';
-    if (order.status === 'Pending') newStatus = 'In Progress';
-    else if (order.status === 'In Progress') newStatus = 'Completed';
-    else return;
+    try{
+      const orderId = order._id;
+      if(order.status=='Pending'){
+      const res= await axios.put(`http://localhost:5000/api/dyeing/`,{id:orderId});
+      console.log("Order update",res.data);
+      const res1 = await axios.get("http://localhost:5000/api/dyeing");
+      setOrders(res1.data);
+      }
+      else if(order.status=='In Progress'){
+        const res= await axios.put(`http://localhost:5000/api/dyeing/put2`,{id:orderId});
+        console.log("Order update",res.data);
+      const res1 = await axios.get("http://localhost:5000/api/dyeing");
+      setOrders(res1.data);
+      }
 
-    try {
-      const res = await axios.put(`http://localhost:5000/api/orders/${order._id}`, {
-        status: newStatus,
-      });
 
-      setOrders(prev =>
-        prev.map(o => o._id === order._id ? { ...o, status: newStatus } : o)
-      );
-    } catch (error) {
-      console.error('Error updating status:', error.message);
+    }
+    catch(err)
+    {
+      console.log("Error in updating order stage",err);
     }
   };
 
@@ -118,16 +123,23 @@ const DyeingTask = () => {
                       </span>
                     </td>
                     <td className="p-4">
-                      {(order.status === 'Completed') ? (
-                        <span className="text-green-400 flex items-center gap-2"><FaCheckCircle /> Completed</span>
-                      ) : (
-                        <button
+
+                       {order.status=='Pending'?( <button
                           className="flex items-center gap-2 px-4 py-1 rounded bg-white text-black"
                           onClick={() => handleAction(order)}
                         >
-                          <FaPlay /> {order.status === 'Pending' ? 'Start' : 'Complete'}
-                        </button>
-                      )}
+                          <FaPlay /> Start
+                        </button>):(order.status=='In Progress'?( <button
+                          className="flex items-center gap-2 px-4 py-1 rounded bg-white text-black"
+                          onClick={() => handleAction(order)}
+                        >
+                          <FaPlay /> Complete
+                        </button>):( <button
+                          className="flex items-center gap-2 px-4 py-1 rounded bg-white text-black"
+                        >
+                         Finished
+                        </button>))}
+
                     </td>
                   </tr>
                 ))}
