@@ -1,34 +1,34 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from "axios"
 import Sidebar from './Sidebar';
 const CuttingTasks = () => {
   const [activeTab, setActiveTab] = useState('active');
 
-  const tasks = [
+  const [tasks, settask] = useState([]);
+  useEffect(() => {
+    const fetchTasks = async () => {
+      try {
+        const response = await axios.get("http://localhost:5000/api/production/cut");
+        console.log(response.data); // Optional: Check data format
+        settask(response.data);
+      } catch (error) {
+        console.error("Error fetching cutting tasks:", error);
+      }
+    };
+    fetchTasks();
+  }, []);
+  const handleStart=async (task)=>{
+    const OrderId=task._id;
+    try{
+      console.log("Changing task to in progress");
+      const res=await axios.put("http://localhost:5000/api/production/put1",{id,OrderId});
+      console.log("Order is started  successfully");
+    }
+    catch(err)
     {
-      id: 'CUT-001',
-      order: 'ORD-2023-002',
-      description: 'Cut patterns for 100 T-shirts',
-      sizes: 'S (25), M (25), L (25), XL (25)',
-      assignedTo: 'Sarah Johnson',
-      progress: 60,
-    },
-    {
-      id: 'CUT-002',
-      order: 'ORD-2023-003',
-      description: 'Cut patterns for 80 shorts',
-      sizes: 'M (40), L (40)',
-      assignedTo: 'David Wilson',
-      progress: 0,
-    },
-    {
-      id: 'CUT-003',
-      order: 'ORD-2023-005',
-      description: 'Cut patterns for T-shirts and pants',
-      sizes: 'T-shirts: S (15), M (30), L (15) | Pants: M (20), L (20)',
-      assignedTo: 'Unassigned',
-      progress: 0,
-    },
-  ];
+      console.log(err);
+    }
+  }
 
   return (
     <div className="flex min-h-screen bg-black text-white">
@@ -80,7 +80,7 @@ const CuttingTasks = () => {
         </div>
 
         {/* Task Table */}
-      
+
         <div className="bg-[#1a1a1a] rounded p-4">
           <h3 className="text-xl font-semibold mb-4">Current Cutting Tasks</h3>
           <div className="overflow-auto">
@@ -98,27 +98,35 @@ const CuttingTasks = () => {
               </thead>
               <tbody>
                 {tasks.map((task, idx) => (
-                  <tr key={idx} className="border-b border-gray-800">
-                    <td className="p-2">{task.id}</td>
-                    <td className="p-2">{task.order}</td>
-                    <td className="p-2">{task.description}</td>
-                    <td className="p-2">{task.sizes}</td>
-                    <td className="p-2">{task.assignedTo}</td>
+                  <tr key={task._id || idx} className="border-b border-gray-800">
+                    <td className="p-2">{task._id}</td>
+                    <td className="p-2">{task.order_id}</td>
+                    <td className="p-2">{task.name}</td>
+                    <td className="p-2">
+                      {Object.entries(task.sizes || {}).map(([size, count]) => (
+                        <span key={size} className="mr-2">{size.toUpperCase()}: {count}</span>
+                      ))}
+                    </td>
+                    <td className="p-2">{task.user}</td>
                     <td className="p-2">
                       <div className="h-2 bg-gray-700 rounded">
                         <div
                           className="bg-white h-2 rounded"
-                          style={{ width: `${task.progress}%` }}
+                          style={{ width: task.status === 'Completed' ? '100%' : task.status === 'In Progress' ? '50%' : '0%' }}
                         ></div>
                       </div>
                     </td>
                     <td className="p-2 flex space-x-2">
-                      <button className="bg-white text-black px-3 py-1 rounded text-xs">{task.progress > 0 ? 'Update' : 'Start'}</button>
-                      <button className="bg-gray-800 text-white px-3 py-1 rounded text-xs border border-gray-600">Assign</button>
+                    {task.status=== 'Pending'  ?(  <button className="bg-white text-black px-3 py-1 rounded text-xs" onClick={()=>handleStart(task)} >
+                      Start
+                      </button>):(<button className="bg-white text-black px-3 py-1 rounded text-xs">
+                      Complete
+                      </button>)}
                     </td>
                   </tr>
                 ))}
               </tbody>
+
             </table>
           </div>
         </div>
