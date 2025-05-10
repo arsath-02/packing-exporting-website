@@ -41,7 +41,19 @@ const Dyeing = () => {
     fetchOrders();
   }, []);
 
-
+const handleAction=async (order)=>{
+  console.log("It is clicked");
+  try{
+    const id=order._id
+    console.log("Id in frontend ",id);
+    const res=await axios.put("http://localhost:5000/Manager/",{oid:id});
+    console.log(res);
+  }
+  catch(err)
+  {
+    console.log("Error",err);
+  }
+}
 
 
 
@@ -131,7 +143,7 @@ const Dyeing = () => {
             </table>
           </div>
         </div>):(<div className="mt-6">
-          <h3 className="text-xl font-semibold mb-4">Orders in Dyeing Process</h3>
+          <h3 className="text-xl font-semibold mb-4">Orders in Dyeing Process completed</h3>
           <div className="bg-[#1c1c1c] rounded-lg overflow-hidden">
             <table className="w-full text-left">
               <thead className="bg-[#2a2a2a]">
@@ -148,7 +160,7 @@ const Dyeing = () => {
                 {filteredOrders.map(order => (
                   <tr key={order._id} className="border-t border-gray-700">
                     <td className="p-4">{order.order_id}</td>
-                    <td className="p-4">{order.customer || 'N/A'}</td>
+                    <td className="p-4">{order.name || 'N/A'}</td>
                     <td className="p-4">
                       {Object.entries(order.garmentTypes)
                         .map(([type, qty]) => `${type} (${qty})`)
@@ -171,16 +183,14 @@ const Dyeing = () => {
                       </span>
                     </td>
                     <td className="p-4">
-                      {(order.status === 'Completed') ? (
-                        <span className="text-green-400 flex items-center gap-2"><FaCheckCircle /> Completed</span>
-                      ) : (
+
                         <button
                           className="flex items-center gap-2 px-4 py-1 rounded bg-white text-black"
                           onClick={() => handleAction(order)}
                         >
-                          <FaPlay /> {order.status === 'Pending' ? 'Start' : 'Complete'}
+                          <FaPlay /> Move to
                         </button>
-                      )}
+
                     </td>
                   </tr>
                 ))}

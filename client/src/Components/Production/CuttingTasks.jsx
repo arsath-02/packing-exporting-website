@@ -80,6 +80,7 @@ const CuttingTasks = () => {
         </div>
 
         {/* Task Table */}
+      
         <div className="bg-[#1a1a1a] rounded p-4">
           <h3 className="text-xl font-semibold mb-4">Current Cutting Tasks</h3>
           <div className="overflow-auto">
