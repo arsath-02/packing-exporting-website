@@ -9,6 +9,7 @@ const dashboardRoutes = require('./routes/dashboardRoutes');
 const dyeRoutes =require("./routes/dyeing");
 const manager=require("./routes/manager");
 const production=require("./routes/production");
+const production_stiches=require("./routes/stiches")
 const app = express();
 app.use(cors());
 app.use(express.json());
@@ -32,5 +33,7 @@ app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/dyeing', dyeRoutes );
 app.use('/Manager',manager);
 app.use("/api/production",production);
+app.use("/api/production-stiches",production_stiches);
+
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

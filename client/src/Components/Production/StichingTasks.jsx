@@ -1,45 +1,57 @@
-import { useState } from 'react';
+import { useState,useEffect } from 'react';
 import { FiLogOut, FiUserPlus } from 'react-icons/fi';
 import { BsPlayFill } from 'react-icons/bs';
 import Sidebar from './Sidebar';
-const stitchingData = [
-  {
-    id: 'STI-001',
-    order: 'ORD-2023-001',
-    description: 'Stitch 50 T-shirts and 30 shorts',
-    sizes: 'T-shirts: M (25), L (25) | Shorts: M (15), L (15)',
-    assignedTo: 'Michael Brown',
-    progress: 65,
-  },
-  {
-    id: 'STI-002',
-    order: 'ORD-2023-002',
-    description: 'Stitch 100 T-shirts',
-    sizes: 'S (25), M (25), L (25), XL (25)',
-    assignedTo: null,
-    progress: 0,
-  },
-  {
-    id: 'STI-003',
-    order: 'ORD-2023-005',
-    description: 'Stitch T-shirts and pants',
-    sizes: 'T-shirts: S (15), M (30), L (15) | Pants: M (20), L (20)',
-    assignedTo: null,
-    progress: 0,
-  },
-];
-
+import axios from "axios"
 const StitchingTasks = ()=> {
-  const [activeTab, setActiveTab] = useState('active');
-  const [tasks, setTasks] = useState(stitchingData);
+  //  const [activeTab, setActiveTab] = useState('active');
+    const [completeblock,setcompleteblock]=useState(true);
+    const [tasks, settask] = useState([]);
+  useEffect(() => {
+      const fetchTasks = async () => {
+        try {
+          const response = await axios.get("http://localhost:5000/api/production-stiches/");
+          console.log(response.data); // Optional: Check data format
+          settask(response.data);
+        } catch (error) {
+          console.error("Error fetching cutting tasks:", error);
+        }
+      };
+      fetchTasks();
+    }, []);
+  const handleStart = async (task) => {
+      const OrderId = task._id;
+      try {
+        console.log("Changing task to in progress");
+        const res = await axios.put("http://localhost:5000/api/production-stiches/put1", { id: OrderId });
+        console.log("Order is started  successfully");
+        const response = await axios.get("http://localhost:5000/api/production-stiches/");
+        console.log(response.data); // Optional: Check data format
+        settask(response.data);
+      }
+      catch (err) {
+        console.log(err);
+      }
+    }
+    const handleComplete = async (task) => {
+      try {
+        const oid = task._id;
+        console.log("Changing task to Completed");
+        const res = await axios.put("http://localhost:5000/api/production-stiches/put2", { id: oid });
+        console.log("Order is started  successfully");
+        const response = await axios.get("http://localhost:5000/api/production-stiches/");
+        console.log(response.data); // Optional: Check data format
+        settask(response.data);
 
-  const startTask = (taskId) => {
-    setTasks(
-      tasks.map((task) =>
-        task.id === taskId ? { ...task, progress: 10 } : task
-      )
-    );
-  };
+
+      }
+      catch (err) {
+        console.log("Order complete is error in frontend", err);
+      }
+    }
+
+  const activetasks=tasks.filter((order)=> order.status!='Completed');
+  const completedtask=tasks.filter((order)=>order.status=='Completed');
 
   return (
     <div className="flex text-white min-h-screen bg-black">
@@ -77,8 +89,8 @@ const StitchingTasks = ()=> {
 
         {/* Tabs */}
         <div className="flex gap-4 mb-4">
-          <button onClick={() => setActiveTab('active')} className={`px-4 py-2 rounded ${activeTab === 'active' ? 'bg-gray-700 text-white' : 'bg-gray-900 text-gray-400'}`}>Active Tasks</button>
-          <button onClick={() => setActiveTab('completed')} className={`px-4 py-2 rounded ${activeTab === 'completed' ? 'bg-gray-700 text-white' : 'bg-gray-900 text-gray-400'}`}>Completed Tasks</button>
+          <button onClick={() => setcompleteblock(!completeblock)} className={`px-4 py-2 rounded ${completeblock ? 'bg-gray-700 text-white' : 'bg-gray-900 text-gray-400'}`}>Active Tasks</button>
+          <button onClick={() => setcompleteblock(!completeblock)} className={`px-4 py-2 rounded ${completeblock ? 'bg-gray-700 text-white' : 'bg-gray-900 text-gray-400'}`}>Completed Tasks</button>
         </div>
 
         {/* Task Table */}
@@ -96,33 +108,88 @@ const StitchingTasks = ()=> {
                 <th>Actions</th>
               </tr>
             </thead>
-            <tbody>
-              {tasks.map((task) => (
-                <tr key={task.id} className="border-b border-gray-800">
-                  <td className="p-4">{task.id}</td>
-                  <td>{task.order}</td>
-                  <td>{task.description}</td>
-                  <td>{task.sizes}</td>
-                  <td>{task.assignedTo || 'Unassigned'}</td>
-                  <td>
-                    <div className="w-28 h-2 bg-gray-700 rounded">
-                      <div className="h-full bg-white rounded" style={{ width: `${task.progress}%` }}></div>
-                    </div>
-                  </td>
-                  <td className="space-x-2">
-                    {task.progress === 0 && (
-                      <button onClick={() => startTask(task.id)} className="bg-white text-black rounded px-2 py-1 flex items-center gap-1">
-                        <BsPlayFill /> Start
-                      </button>
-                    )}
-                    <button className="bg-white text-black rounded px-2 py-1 flex items-center gap-1">
-                      <FiUserPlus /> Update
-                    </button>
-                    <button className="bg-black border border-gray-500 text-white rounded px-2 py-1">Assign</button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
+            {completeblock?(<tbody>
+                {activetasks.map((task, idx) => (
+                  <tr key={task._id || idx} className="border-b border-gray-800">
+                    <td className="p-2">{task._id}</td>
+                    <td className="p-2">{task.order_id}</td>
+                    <td className="p-2">{task.name}</td>
+                    <td className="p-2">
+                      {Object.entries(task.sizes || {}).map(([size, count]) => (
+                        <span key={size} className="mr-2">{size.toUpperCase()}: {count}</span>
+                      ))}
+                    </td>
+                    <td className="p-2">{task.user}</td>
+                    <td className="p-2">
+                      <div className="h-2 bg-gray-700 rounded">
+                        <div
+                          className="bg-white h-2 rounded"
+                          style={{ width: task.status === 'Completed' ? '100%' : task.status === 'In Progress' ? '50%' : '0%' }}
+                        ></div>
+                      </div>
+                    </td>
+                    <td className="p-2 flex space-x-2">
+                      {
+                        task.status === 'Pending' ? (
+                          <button className="bg-white text-black px-3 py-1 rounded text-xs" onClick={() => handleStart(task)}>
+                            Start
+                          </button>
+                        ) : task.status === 'Completed' ? (
+                          <button className="bg-white text-black px-3 py-1 rounded text-xs">
+                            Finished
+                          </button>
+                        ) : (
+                          <button className="bg-white text-black px-3 py-1 rounded text-xs" onClick={() => handleComplete(task)}>
+                            Complete
+                          </button>
+                        )
+                      }
+
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+             ):( <tbody>
+              {completedtask.map((task, idx) => (
+                  <tr key={task._id || idx} className="border-b border-gray-800">
+                    <td className="p-2">{task._id}</td>
+                    <td className="p-2">{task.order_id}</td>
+                    <td className="p-2">{task.name}</td>
+                    <td className="p-2">
+                      {Object.entries(task.sizes || {}).map(([size, count]) => (
+                        <span key={size} className="mr-2">{size.toUpperCase()}: {count}</span>
+                      ))}
+                    </td>
+                    <td className="p-2">{task.user}</td>
+                    <td className="p-2">
+                      <div className="h-2 bg-gray-700 rounded">
+                        <div
+                          className="bg-white h-2 rounded"
+                          style={{ width: task.status === 'Completed' ? '100%' : task.status === 'In Progress' ? '50%' : '0%' }}
+                        ></div>
+                      </div>
+                    </td>
+                    <td className="p-2 flex space-x-2">
+                      {
+                        task.status === 'Pending' ? (
+                          <button className="bg-white text-black px-3 py-1 rounded text-xs" onClick={() => handleStart(task)}>
+                            Start
+                          </button>
+                        ) : task.status === 'Completed' ? (
+                          <button className="bg-white text-black px-3 py-1 rounded text-xs">
+                            Finished
+                          </button>
+                        ) : (
+                          <button className="bg-white text-black px-3 py-1 rounded text-xs" onClick={() => handleComplete(task)}>
+                            Complete
+                          </button>
+                        )
+                      }
+
+                    </td>
+                  </tr>
+                ))}
+              </tbody>)}
           </table>
         </div>
       </div>

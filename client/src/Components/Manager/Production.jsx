@@ -10,23 +10,31 @@ const Production = () => {
   const [orders, setOrders] = useState([]);
   const navigate = useNavigate();
 
-
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/orders");
-        setOrders(res.data);
-        console.log(res.data);
+        const res1 = await axios.get("http://localhost:5000/api/production/cut");
+        const res2 = await axios.get("http://localhost:5000/api/production-stiches/");
+
+        const combinedData = [...res1.data, ...res2.data]; // Merging arrays
+
+        setOrders(combinedData);
       } catch (e) {
-        console.log(`Error fetching data: ${e.message}`);
+        console.error(`Error fetching data: ${e.message}`);
       }
     };
+
     fetchData();
   }, []);
 
+
   const filteredOrders = {
-    Cutting: orders.filter((o) => o.status === "Pending"),
-    Stitching: orders.filter((o) => o.status === "Pending"),
+    Cutting: orders.filter(
+      (o) =>o.stages === "Cutting Section"
+    ),
+    Stitching: orders.filter(
+      (o) => o.stages === "Stitching section"
+    ),
     Completed: orders.filter((o) => o.status === "Completed"),
   };
 
@@ -37,9 +45,12 @@ const Production = () => {
       <div className="flex-1 p-8">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold">Production Department</h1>
-           <button className="text-gray-300 hover:text-white flex items-center gap-1" onClick={()=> navigate('/')}>
-                      <BiLogOut className="text-lg" /> Logout
-                    </button>
+          <button
+            className="text-gray-300 hover:text-white flex items-center gap-1"
+            onClick={() => navigate("/")}
+          >
+            <BiLogOut className="text-lg" /> Logout
+          </button>
         </div>
 
         <p className="text-gray-400 mb-6">
