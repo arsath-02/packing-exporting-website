@@ -4,7 +4,17 @@ const cors = require('cors');
 require('dotenv').config();
 
 const authRoutes = require('./routes/auth');
+<<<<<<< Updated upstream:Backend/server.js
 const orderRoutes = require("./routes/Orders");
+=======
+const OrderRoutes = require('./routes/Orders');
+const dashboardRoutes = require('./routes/dashboardRoutes');
+const dyeRoutes =require("./routes/dyeing");
+const manager=require("./routes/manager");
+const production=require("./routes/production");
+const production_stiches=require("./routes/stiches");
+const production_sidemanager=require("./routes/production_sidemanager")
+>>>>>>> Stashed changes:server/server.js
 const app = express();
 app.use(cors());
 app.use(express.json());
@@ -23,7 +33,17 @@ mongoose.connect(process.env.MONGO_URI, {
 
 // Routes
 app.use('/api/auth', authRoutes);
+<<<<<<< Updated upstream:Backend/server.js
 app.use("/api/orders",orderRoutes);
 
+=======
+app.use('/api/orders',OrderRoutes);
+app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/dyeing', dyeRoutes );
+app.use('/Manager',manager);
+app.use("/api/production",production);
+app.use("/api/production-stiches",production_stiches);
+app.use("/api/production_sidemanager",production_sidemanager);
+>>>>>>> Stashed changes:server/server.js
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
