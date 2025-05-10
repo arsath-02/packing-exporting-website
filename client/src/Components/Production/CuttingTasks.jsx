@@ -21,14 +21,18 @@ const CuttingTasks = () => {
     const OrderId=task._id;
     try{
       console.log("Changing task to in progress");
-      const res=await axios.put("http://localhost:5000/api/production/put1",{id,OrderId});
+      const res=await axios.put("http://localhost:5000/api/production/put1",{id:OrderId});
       console.log("Order is started  successfully");
+      const response = await axios.get("http://localhost:5000/api/production/cut");
+      console.log(response.data); // Optional: Check data format
+      settask(response.data);
     }
     catch(err)
     {
       console.log(err);
     }
   }
+
 
   return (
     <div className="flex min-h-screen bg-black text-white">
@@ -119,7 +123,7 @@ const CuttingTasks = () => {
                     <td className="p-2 flex space-x-2">
                     {task.status=== 'Pending'  ?(  <button className="bg-white text-black px-3 py-1 rounded text-xs" onClick={()=>handleStart(task)} >
                       Start
-                      </button>):(<button className="bg-white text-black px-3 py-1 rounded text-xs">
+                      </button>):(<button className="bg-white text-black px-3 py-1 rounded text-xs" onClick={()=>handleComplete(task)}>
                       Complete
                       </button>)}
                     </td>
