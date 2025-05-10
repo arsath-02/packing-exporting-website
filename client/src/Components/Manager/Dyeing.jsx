@@ -8,7 +8,7 @@ import { BiLogOut } from "react-icons/bi";
 const Dyeing = () => {
   const [activeTab, setActiveTab] = useState('active');
    const [orders, setOrders] = useState([]);
-  // const [filteredOrders, setFilteredOrders] = useState([]);
+   const [filteredOrders, setFilteredOrders] = useState([]);
   const [displayedOrders, setDisplayedOrders] = useState([]);
   const navigate = useNavigate();
 
@@ -20,11 +20,15 @@ const Dyeing = () => {
           const allOrders = res.data;
 
           // Filter orders that have "Dyeing" in their stages
-          const dyeingOrders = allOrders.filter((order) => (order.stages === 'Dyeing') || order.stages.startsWith('dye'))
+          const dyeingOrders = allOrders.filter((order) =>( (order.stages === 'Dyeing') || order.stages.startsWith('dye'))&& order.status!='Completed')
+
+          const dyeingOrderscomplete = allOrders.filter((order) => ((order.stages === 'Dyeing') || order.stages.startsWith('dye'))&& order.status==='Completed')
+          setFilteredOrders(dyeingOrderscomplete)
 
 
           setOrders(dyeingOrders);
           setDisplayedOrders(dyeingOrders);
+
           // Filter only those where "Dyeing" is not completed
 
 
@@ -69,7 +73,7 @@ const Dyeing = () => {
           <button className={`px-4 py-2 rounded ${activeTab === 'completed' ? 'bg-white text-black' : 'bg-gray-700'}`} onClick={() => setActiveTab('completed')}>Completed Orders</button>
         </div>
 
-        <div className="mt-6">
+       { activeTab === 'active'?(<div className="mt-6">
           <h3 className="text-xl font-semibold mb-4">Orders in Dyeing Process</h3>
           <div className="bg-[#1c1c1c] rounded-lg overflow-hidden">
             <table className="w-full text-left">
@@ -126,7 +130,64 @@ const Dyeing = () => {
               </tbody>
             </table>
           </div>
-        </div>
+        </div>):(<div className="mt-6">
+          <h3 className="text-xl font-semibold mb-4">Orders in Dyeing Process</h3>
+          <div className="bg-[#1c1c1c] rounded-lg overflow-hidden">
+            <table className="w-full text-left">
+              <thead className="bg-[#2a2a2a]">
+                <tr>
+                  <th className="p-4">Order ID</th>
+                  <th className="p-4">Customer</th>
+                  <th className="p-4">Items</th>
+                  <th className="p-4">Color</th>
+                  <th className="p-4">Status</th>
+                  <th className="p-4">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredOrders.map(order => (
+                  <tr key={order._id} className="border-t border-gray-700">
+                    <td className="p-4">{order.order_id}</td>
+                    <td className="p-4">{order.customer || 'N/A'}</td>
+                    <td className="p-4">
+                      {Object.entries(order.garmentTypes)
+                        .map(([type, qty]) => `${type} (${qty})`)
+                        .join(", ")}
+                    </td>
+                    <td className="p-4">
+                      <span
+                        className="inline-block w-3 h-3 rounded-full mr-2"
+                        style={{ backgroundColor: order.dyeColor?.toLowerCase() || '#ccc' }}
+                      ></span>
+                      {order.dyeColor}
+                    </td>
+                    <td className="p-4">
+                      <span className={`text-sm px-3 py-1 rounded-full ${
+                        order.status === 'Pending' ? 'bg-yellow-500' :
+                        order.status === 'In Progress' ? 'bg-blue-500' :
+                        order.status === 'Completed' ? 'bg-green-500' : 'bg-gray-500'
+                      }`}>
+                        {order.status}
+                      </span>
+                    </td>
+                    <td className="p-4">
+                      {(order.status === 'Completed') ? (
+                        <span className="text-green-400 flex items-center gap-2"><FaCheckCircle /> Completed</span>
+                      ) : (
+                        <button
+                          className="flex items-center gap-2 px-4 py-1 rounded bg-white text-black"
+                          onClick={() => handleAction(order)}
+                        >
+                          <FaPlay /> {order.status === 'Pending' ? 'Start' : 'Complete'}
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>)}
       </main>
     </div>
   );
