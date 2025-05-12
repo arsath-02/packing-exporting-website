@@ -11,6 +11,7 @@ const manager=require("./routes/manager");
 const production=require("./routes/production");
 const production_stiches=require("./routes/stiches")
 const production_sidemanager=require("./routes/production_sidemanager")
+const QualityCheckOrder = require('./routes/Quality_Check'); // make sure this uses CommonJS if needed
 const app = express();
 app.use(cors());
 app.use(express.json());
@@ -35,7 +36,7 @@ app.use('/api/dyeing', dyeRoutes );
 app.use('/Manager',manager);
 app.use("/api/production",production);
 app.use("/api/production-stiches",production_stiches);
-
+app.use("/api/packing", QualityCheckOrder);
 app.use("/api/production_sidemanager",production_sidemanager);
 
 const PORT = process.env.PORT || 5000;

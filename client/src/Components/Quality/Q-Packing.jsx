@@ -1,8 +1,53 @@
 // PackingShipping.js
-import React from 'react';
+import axios from 'axios';
+import React, { useEffect, useState } from 'react';
 import Sidebar from './Sidebar';
 
 const Packing = () => {
+  const [activeTab, setActiveTab] = useState('active');
+  const [allOrders, setAllOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        const res = await axios.get('http://localhost:5000/api/packing');
+        setAllOrders(res.data.orders);
+      } catch (error) {
+        console.error('Error fetching orders:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchOrders(); // initial fetch
+    const interval = setInterval(fetchOrders, 10000); // every 10 seconds
+
+    return () => clearInterval(interval); // cleanup
+  }, []);
+
+  const handleStatusUpdate = async (orderId, newStatus) => {
+    try {
+      await axios.put(`http://localhost:5000/api/packing/${orderId}/status`, {
+        status: newStatus,
+      });
+      setAllOrders((prevOrders) =>
+        prevOrders.map((order) =>
+          order._id === orderId ? { ...order, status: newStatus } : order
+        )
+      );
+    } catch (error) {
+      console.error('Failed to update status:', error);
+    }
+  };
+
+  const filteredOrders =
+    activeTab === 'active'
+      ? allOrders.filter((order) => order.status === 'Pending' || order.status === 'In Progress')
+      : activeTab === 'in-progress'
+      ? allOrders.filter((order) => order.status === 'In Progress')
+      : allOrders.filter((order) => order.status === 'Completed');
+
   return (
     <main className="flex bg-gray-950 text-white min-h-screen">
       <Sidebar />
@@ -34,60 +79,84 @@ const Packing = () => {
 
         <div className="bg-gray-900 p-6 rounded-lg shadow overflow-x-auto">
           <h3 className="text-xl font-semibold mb-4">Packing & Shipping Orders</h3>
-          <table className="min-w-full table-auto text-left text-sm">
-            <thead className="text-gray-400 border-b border-gray-700">
-              <tr>
-                <th className="pb-2 pr-4">Order ID</th>
-                <th className="pb-2 pr-4">Customer</th>
-                <th className="pb-2 pr-4">Items</th>
-                <th className="pb-2 pr-4">Status</th>
-                <th className="pb-2 pr-4">Packed By</th>
-                <th className="pb-2 pr-4">Shipped Via</th>
-                <th className="pb-2">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr className="border-t border-gray-800 hover:bg-gray-800 transition">
-                <td className="py-3 pr-4">ORD-2023-005</td>
-                <td className="pr-4">Alice Brown</td>
-                <td className="pr-4">Hoodies (40)</td>
-                <td className="pr-4">
-                  <span className="bg-blue-500 text-black text-xs px-2 py-1 rounded">Packed</span>
-                </td>
-                <td className="pr-4">Mark Leo</td>
-                <td className="pr-4">-</td>
-                <td>
-                  <button className="bg-yellow-400 text-black px-3 py-1 rounded text-sm">Ship</button>
-                </td>
-              </tr>
-              <tr className="border-t border-gray-800 hover:bg-gray-800 transition">
-                <td className="py-3 pr-4">ORD-2023-006</td>
-                <td className="pr-4">Charlie White</td>
-                <td className="pr-4">Jeans (25)</td>
-                <td className="pr-4">
-                  <span className="bg-green-600 text-white text-xs px-2 py-1 rounded">In Transit</span>
-                </td>
-                <td className="pr-4">Susan Ray</td>
-                <td className="pr-4">FedEx</td>
-                <td>
-                  <button className="bg-gray-800 px-3 py-1 rounded text-sm text-gray-400">Track</button>
-                </td>
-              </tr>
-              <tr className="border-t border-gray-800 hover:bg-gray-800 transition">
-                <td className="py-3 pr-4">ORD-2023-007</td>
-                <td className="pr-4">Robert Lane</td>
-                <td className="pr-4">Jackets (10)</td>
-                <td className="pr-4">
-                  <span className="bg-gray-600 text-white text-xs px-2 py-1 rounded">Delivered</span>
-                </td>
-                <td className="pr-4">Emma Lee</td>
-                <td className="pr-4">DHL</td>
-                <td>
-                  <button className="bg-gray-800 px-3 py-1 rounded text-sm text-gray-400">Details</button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+
+          {loading ? (
+            <p className="text-center py-10 text-gray-400">Loading orders...</p>
+          ) : (
+            <table className="min-w-full table-auto text-left text-sm">
+              <thead className="text-gray-400 border-b border-gray-700">
+                <tr>
+                  <th className="pb-2 pr-4">Order ID</th>
+                  <th className="pb-2 pr-4">Customer</th>
+                  <th className="pb-2 pr-4">Items</th>
+                  <th className="pb-2 pr-4">Status</th>
+                  <th className="pb-2 pr-4">Packed By</th>
+                  <th className="pb-2 pr-4">Shipped Via</th>
+                  <th className="pb-2">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredOrders.length === 0 ? (
+                  <tr>
+                    <td colSpan="7" className="text-center py-4 text-gray-500">
+                      No orders found for this status.
+                    </td>
+                  </tr>
+                ) : (
+                  filteredOrders.map((order) => (
+                    <tr
+                      key={order._id}
+                      className="border-t border-gray-800 hover:bg-gray-800 transition"
+                    >
+                      <td className="py-3 pr-4">{order.order_id}</td>
+                      <td className="pr-4">{order.name}</td>
+                      <td className="pr-4">
+                        {Object.entries(order.garmentTypes)
+                          .filter(([_, count]) => count > 0)
+                          .map(([item, count]) => `${item} (${count})`)
+                          .join(', ')}
+                      </td>
+                      <td className="pr-4">
+                        <span
+                          className={`text-xs px-2 py-1 rounded ${
+                            order.status === 'Pending'
+                              ? 'bg-yellow-500 text-black'
+                              : order.status === 'In Progress'
+                              ? 'bg-green-500 text-white'
+                              : order.status === 'Completed'
+                              ? 'bg-gray-500 text-white'
+                              : 'bg-blue-500 text-black'
+                          }`}
+                        >
+                          {order.status}
+                        </span>
+                      </td>
+                      <td className="pr-4">{order.packedBy || '-'}</td>
+                      <td className="pr-4">{order.shippedVia || '-'}</td>
+                      <td className="flex space-x-2 py-3">
+                        {order.status !== 'Completed' && (
+                          <>
+                            <button
+                              onClick={() => handleStatusUpdate(order._id, 'In Progress')}
+                              className="bg-yellow-400 text-black px-2 py-1 rounded text-xs"
+                            >
+                              Mark In Progress
+                            </button>
+                            <button
+                              onClick={() => handleStatusUpdate(order._id, 'Completed')}
+                              className="bg-green-500 text-white px-2 py-1 rounded text-xs"
+                            >
+                              Mark Completed
+                            </button>
+                          </>
+                        )}
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          )}
         </div>
       </div>
     </main>
