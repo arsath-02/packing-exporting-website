@@ -7,6 +7,7 @@ const OrderStatus = () => {
   const [orders, setOrders] = useState([]);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const navigate = useNavigate();
+
   useEffect(() => {
     const fetchOrders = async () => {
       try {
@@ -16,18 +17,17 @@ const OrderStatus = () => {
           id: order.order_id,
           date: new Date(order.createdAt).toISOString().split('T')[0],
           status: order.status,
-          clothType: JSON.stringify(order.clothType),
+          clothType: order.clothType,
           weight: `${order.weight}kg`,
           items: Object.entries(order.garmentTypes)
             .filter(([type, value]) => value)
             .map(([type]) => type)
             .join(', '),
           dyeColor: order.dyeColor,
-          progress: formatStages(order.stages),
+          progress: formatStages(order.stages), // Stage handling
         }));
       
         setOrders(formattedOrders);
-        console.log(formattedOrders)
         if (formattedOrders.length > 0) setSelectedOrder(formattedOrders[0]);
       } catch (err) {
         console.error('Error fetching orders:', err);
@@ -37,20 +37,18 @@ const OrderStatus = () => {
     fetchOrders();
   }, []);
 
-  const formatStages = (stages) => {
+  // Format the stages of the order
+  const formatStages = (stageString) => {
     const allSteps = ['Order Confirmed', 'Dyeing', 'Cutting', 'Stitching', 'Packing', 'Shipped'];
-    const statusMap = stages?.reduce((acc, stage) => {
-      acc[stage.name] = { status: stage.status, date: stage.date };
-      return acc;
-    }, {}) || {};
 
-    return allSteps.map((step) => {
-      const stepData = statusMap[step] || { status: 'pending', date: null };
-      return {
-        step,
-        status: stepData.status,
-        date: stepData.date ? new Date(stepData.date).toISOString().split('T')[0] : null
-      };
+    let currentStageIndex = allSteps.findIndex((step) => step.toLowerCase().includes(stageString?.toLowerCase()));
+
+    return allSteps.map((step, index) => {
+      let status = 'pending';
+      if (index < currentStageIndex) status = 'done';
+      else if (index === currentStageIndex) status = 'in_progress';
+
+      return { step, status, date: null }; // Add date once your backend supports it
     });
   };
 
@@ -60,7 +58,9 @@ const OrderStatus = () => {
       <div className="flex-1 p-6 overflow-auto">
         <div className="flex justify-between items-center">
           <h2 className="text-3xl font-bold">Order Status</h2>
-          <button className="bg-white text-black px-4 py-2 rounded font-semibold" onClick={()=> navigate('/Customer/place-order')}>Place New Order</button>
+          <button className="bg-white text-black px-4 py-2 rounded font-semibold" onClick={() => navigate('/Customer/place-order')}>
+            Place New Order
+          </button>
         </div>
         <p className="text-gray-400 mb-6">Track the status of your garment orders.</p>
 

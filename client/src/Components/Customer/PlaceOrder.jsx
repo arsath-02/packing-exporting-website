@@ -9,7 +9,12 @@ const PlaceOrder = () => {
     dyeColor: '',
     weight: '',
     quantity: '',
-    garmentTypes: [],
+    garmentTypes: {
+      tshirt: 0,
+      pants: 0,
+      shorts: 0,
+      jacket: 0,
+    },
     sizes: [],
     notes: '',
   });
@@ -17,25 +22,23 @@ const PlaceOrder = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const garmentOptions = ['T-Shirt', 'Pants', 'Shorts', 'Jacket'];
   const sizeOptions = ['Small (S)', 'Medium (M)', 'Large (L)', 'Extra Large (XL)'];
 
-  // Assuming the user ID is retrieved from a global state, context, or any other method.
-  const userId = localStorage.getItem("id"); // Replace with the actual user ID source.
-console.log(userId);
-  const handleCheckboxChange = (e, key) => {
+  const userId = localStorage.getItem('id'); // Replace this with secure auth handling in production
+
+  const handleCheckboxChange = (e) => {
     const { value, checked } = e.target;
-    setFormData(prev => {
-      const updated = checked
-        ? [...prev[key], value]
-        : prev[key].filter(item => item !== value);
-      return { ...prev, [key]: updated };
+    setFormData((prev) => {
+      const updatedSizes = checked
+        ? [...prev.sizes, value]
+        : prev.sizes.filter((item) => item !== value);
+      return { ...prev, sizes: updatedSizes };
     });
   };
 
-  const handleChange = e => {
+  const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const generateUniqueId = (prefix) => `${prefix}-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
@@ -46,13 +49,6 @@ console.log(userId);
     setError('');
 
     try {
-      const garmentMap = {
-        'T-Shirt': 'tshirt',
-        'Shorts': 'shorts',
-        'Pants': 'pants',
-        'Jacket': 'jacket',
-      };
-
       const sizeMap = {
         'Small (S)': 's',
         'Medium (M)': 'm',
@@ -60,38 +56,27 @@ console.log(userId);
         'Extra Large (XL)': 'xl',
       };
 
-      const garmentCounts = { tshirt: 0, shorts: 0, pants: 0, jacket: 0 };
       const sizeCounts = { s: 0, m: 0, l: 0, xl: 0 };
-
-      formData.garmentTypes.forEach(type => {
-        const key = garmentMap[type];
-        if (key) garmentCounts[key] += 1;
-      });
-
-      formData.sizes.forEach(size => {
+      formData.sizes.forEach((size) => {
         const key = sizeMap[size];
-        if (key) sizeCounts[key] += 1;
+        if (key) sizeCounts[key]++;
       });
 
       const orderPayload = {
         name: formData.name,
         order_id: generateUniqueId('ORD'),
         packing_id: generateUniqueId('PACK'),
-        user: userId, // User ID sourced from context or another method
+        user: userId,
         clothType: formData.clothType,
         dyeColor: formData.dyeColor,
         weight: Number(formData.weight),
         quantity: Number(formData.quantity),
-        garmentTypes: garmentCounts,
+        garmentTypes: formData.garmentTypes,
         sizes: sizeCounts,
         notes: formData.notes,
       };
-      
 
-      const response = await axios.post(
-        'http://localhost:5000/api/orders/place',
-        orderPayload
-      );
+      const response = await axios.post('http://localhost:5000/api/orders/place', orderPayload);
 
       if (response.status === 200 || response.status === 201) {
         alert('Order placed successfully!');
@@ -101,7 +86,12 @@ console.log(userId);
           dyeColor: '',
           weight: '',
           quantity: '',
-          garmentTypes: [],
+          garmentTypes: {
+            tshirt: 0,
+            pants: 0,
+            shorts: 0,
+            jacket: 0,
+          },
           sizes: [],
           notes: '',
         });
@@ -122,11 +112,7 @@ console.log(userId);
         <h2 className="text-3xl font-bold mb-2">Place New Order</h2>
         <p className="text-gray-400 mb-6">Fill out the form below to place a new garment order.</p>
 
-        {error && (
-          <div className="bg-red-500 text-white p-3 rounded mb-4">
-            {error}
-          </div>
-        )}
+        {error && <div className="bg-red-500 text-white p-3 rounded mb-4">{error}</div>}
 
         <form
           onSubmit={handleSubmit}
@@ -141,10 +127,10 @@ console.log(userId);
               <input
                 type="text"
                 name="name"
-                placeholder="Enter your name"
                 value={formData.name}
                 onChange={handleChange}
                 className="w-full bg-zinc-700 text-white p-2 rounded"
+                placeholder="Enter your name"
               />
             </div>
             <div>
@@ -161,31 +147,28 @@ console.log(userId);
                 <option value="Silk">Silk</option>
               </select>
             </div>
-
             <div>
               <label className="block mb-2">Number of Garments</label>
               <input
                 type="number"
                 name="quantity"
-                placeholder="Enter total quantity"
                 value={formData.quantity}
                 onChange={handleChange}
                 className="w-full bg-zinc-700 text-white p-2 rounded"
+                placeholder="Enter total quantity"
               />
             </div>
-
             <div>
               <label className="block mb-2">Total Weight (kg)</label>
               <input
                 type="text"
                 name="weight"
-                placeholder="Enter total weight in kg"
                 value={formData.weight}
                 onChange={handleChange}
                 className="w-full bg-zinc-700 text-white p-2 rounded"
+                placeholder="Enter total weight in kg"
               />
             </div>
-
             <div>
               <label className="block mb-2">Color of Dye</label>
               <select
@@ -202,35 +185,41 @@ console.log(userId);
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-            <div>
-              <label className="block mb-2">Types of Garments</label>
-              <div className="flex flex-col space-y-2">
-                {garmentOptions.map(type => (
-                  <label key={type} className="inline-flex items-center">
-                    <input
-                      type="checkbox"
-                      value={type}
-                      checked={formData.garmentTypes.includes(type)}
-                      onChange={e => handleCheckboxChange(e, 'garmentTypes')}
-                      className="form-checkbox mr-2"
-                    />
-                    {type}
-                  </label>
-                ))}
-              </div>
+          <div>
+            <label className="block mb-2">Types of Garments (Quantity)</label>
+            <div className="grid grid-cols-2 gap-4 mb-6">
+              {Object.keys(formData.garmentTypes).map((type) => (
+                <div key={type} className="flex flex-col">
+                  <label className="capitalize mb-1">{type}</label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={formData.garmentTypes[type]}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        garmentTypes: {
+                          ...prev.garmentTypes,
+                          [type]: Number(e.target.value),
+                        },
+                      }))
+                    }
+                    className="bg-zinc-700 text-white p-2 rounded"
+                  />
+                </div>
+              ))}
             </div>
 
-            <div>
+            <div className="mb-6">
               <label className="block mb-2">Sizes</label>
               <div className="flex flex-col space-y-2">
-                {sizeOptions.map(size => (
+                {sizeOptions.map((size) => (
                   <label key={size} className="inline-flex items-center">
                     <input
                       type="checkbox"
                       value={size}
                       checked={formData.sizes.includes(size)}
-                      onChange={e => handleCheckboxChange(e, 'sizes')}
+                      onChange={handleCheckboxChange}
                       className="form-checkbox mr-2"
                     />
                     {size}
@@ -255,10 +244,23 @@ console.log(userId);
           <div className="flex justify-between items-center">
             <button
               type="button"
-              onClick={() => setFormData({
-                clothType: '', dyeColor: '', weight: '', quantity: '',
-                garmentTypes: [], sizes: [], notes: ''
-              })}
+              onClick={() =>
+                setFormData({
+                  name: '',
+                  clothType: '',
+                  dyeColor: '',
+                  weight: '',
+                  quantity: '',
+                  garmentTypes: {
+                    tshirt: 0,
+                    pants: 0,
+                    shorts: 0,
+                    jacket: 0,
+                  },
+                  sizes: [],
+                  notes: '',
+                })
+              }
               className="px-4 py-2 border border-zinc-600 rounded hover:bg-zinc-700"
               disabled={isLoading}
             >

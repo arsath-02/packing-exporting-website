@@ -26,18 +26,39 @@ const Packing = () => {
     return () => clearInterval(interval); // cleanup
   }, []);
 
-  const handleStatusUpdate = async (orderId, newStatus) => {
+  const handleStatusUpdate = async (orderId, newStatus, newStage = null) => {
     try {
       await axios.put(`http://localhost:5000/api/packing/${orderId}/status`, {
         status: newStatus,
+        stages: newStage,
       });
+
       setAllOrders((prevOrders) =>
         prevOrders.map((order) =>
-          order._id === orderId ? { ...order, status: newStatus } : order
+          order._id === orderId
+            ? { ...order, status: newStatus, stages: newStage || order.stages }
+            : order
         )
       );
     } catch (error) {
       console.error('Failed to update status:', error);
+    }
+  };
+
+  const handleQualityCheck = async (orderId) => {
+    try {
+      const res = await axios.put(`http://localhost:5000/api/packing/${orderId}/quality-check`);
+      const { isQualityChecked } = res.data;
+
+      setAllOrders((prevOrders) =>
+        prevOrders.map((order) =>
+          order._id === orderId
+            ? { ...order, isQualityChecked }
+            : order
+        )
+      );
+    } catch (error) {
+      console.error('Failed to update quality check status:', error);
     }
   };
 
@@ -90,15 +111,14 @@ const Packing = () => {
                   <th className="pb-2 pr-4">Customer</th>
                   <th className="pb-2 pr-4">Items</th>
                   <th className="pb-2 pr-4">Status</th>
-                  <th className="pb-2 pr-4">Packed By</th>
-                  <th className="pb-2 pr-4">Shipped Via</th>
+                  <th className="pb-2 pr-4">Quality Check</th>
                   <th className="pb-2">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredOrders.length === 0 ? (
                   <tr>
-                    <td colSpan="7" className="text-center py-4 text-gray-500">
+                    <td colSpan="6" className="text-center py-4 text-gray-500">
                       No orders found for this status.
                     </td>
                   </tr>
@@ -131,8 +151,16 @@ const Packing = () => {
                           {order.status}
                         </span>
                       </td>
-                      <td className="pr-4">{order.packedBy || '-'}</td>
-                      <td className="pr-4">{order.shippedVia || '-'}</td>
+                      <td className="pr-4">
+                        <button
+                          onClick={() => handleQualityCheck(order._id)}
+                          className={`px-2 py-1 rounded text-xs ${
+                            order.isQualityChecked ? 'bg-green-600 text-white' : 'bg-gray-600 text-white'
+                          }`}
+                        >
+                          {order.isQualityChecked ? 'Checked' : 'Check'}
+                        </button>
+                      </td>
                       <td className="flex space-x-2 py-3">
                         {order.status !== 'Completed' && (
                           <>

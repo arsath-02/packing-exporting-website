@@ -48,6 +48,7 @@ const handleAction=async (order)=>{
     console.log("Id in frontend ",id);
     const res=await axios.put("http://localhost:5000/Manager/",{oid:id});
     console.log(res);
+    fetchOrders();
   }
   catch(err)
   {

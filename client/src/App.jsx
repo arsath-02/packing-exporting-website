@@ -18,7 +18,7 @@ import CuttingTasks from './Components/Production/CuttingTasks'
 import StitchingTasks from './Components/Production/StichingTasks'
 import TeamManagement from './Components/Production/TeamManagement'
 import Quality_Dashboard from './Components/Quality/Quality-Dashboard';
-import QualityCheck from './Components/Quality/QualityCheck'
+//import QualityCheck from './Components/Quality/QualityCheck'
 import Q_Packing from './Components/Quality/Q-Packing'
 import Hr_Dashboard from './Components/Hr/Hr-dashboard'
 import Emp_dir from './Components/Hr/Employee-dir'
@@ -53,7 +53,7 @@ const App = () => {
         <Route path="/Production/team-manage" element={<TeamManagement />} />
 
         <Route path="/Quality/dashboard" element={<Quality_Dashboard />} />
-        <Route path="/Quality/quality-check" element={<QualityCheck />} />
+        
         <Route path="/Quality/packing" element={<Q_Packing />} />
 
         <Route path='/Hr/dashboard' element={<Hr_Dashboard />} />

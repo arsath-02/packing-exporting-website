@@ -8,7 +8,7 @@ const Sidebar = () => {
 
   const menuItems = [
     { name: 'Dashboard', icon: <FaHome />, path: '/Quality/dashboard' },
-    { name: 'Quality Check', icon: <FaCheckCircle />, path: '/Quality/quality-check' },
+    //{ name: 'Quality Check', icon: <FaCheckCircle />, path: '/Quality/quality-check' },
     { name: 'Packing & Shipping', icon: <FaShippingFast />, path:'/Quality/packing'},
     { name: 'Team Management', icon: <FaUsers />, path: '/Quality/team-manage' },
   ];
