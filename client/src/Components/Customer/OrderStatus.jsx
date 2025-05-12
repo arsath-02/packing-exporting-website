@@ -11,24 +11,35 @@ const OrderStatus = () => {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/orders/');
+        const response = await fetch('http://localhost:5000/api/packing/');
         const data = await response.json();
-        const formattedOrders = data.map((order) => ({
+
+        console.log('Fetched data:', data);
+
+        if (!Array.isArray(data.orders)) {
+          throw new Error('Expected "orders" to be an array but got: ' + JSON.stringify(data));
+        }
+
+        const completedOrders = data.orders.filter(order => order.status === 'Completed');
+
+        const formattedOrders = completedOrders.map((order) => ({
           id: order.order_id,
           date: new Date(order.createdAt).toISOString().split('T')[0],
           status: order.status,
           clothType: order.clothType,
           weight: `${order.weight}kg`,
           items: Object.entries(order.garmentTypes)
-            .filter(([type, value]) => value)
+            .filter(([_, value]) => value)
             .map(([type]) => type)
             .join(', '),
           dyeColor: order.dyeColor,
-          progress: formatStages(order.stages), // Stage handling
+           name: order.name || order.user?.name || 'N/A',
+          progress: formatStages(order.stages, order.status === 'Completed'),
         }));
-      
+
         setOrders(formattedOrders);
         if (formattedOrders.length > 0) setSelectedOrder(formattedOrders[0]);
+
       } catch (err) {
         console.error('Error fetching orders:', err);
       }
@@ -38,17 +49,22 @@ const OrderStatus = () => {
   }, []);
 
   // Format the stages of the order
-  const formatStages = (stageString) => {
+  const formatStages = (stageString, isCompleted) => {
     const allSteps = ['Order Confirmed', 'Dyeing', 'Cutting', 'Stitching', 'Packing', 'Shipped'];
 
-    let currentStageIndex = allSteps.findIndex((step) => step.toLowerCase().includes(stageString?.toLowerCase()));
+    if (isCompleted) {
+      return allSteps.map((step) => ({ step, status: 'done', date: null }));
+    }
+
+    let currentStageIndex = allSteps.findIndex((step) =>
+      stageString?.toLowerCase().includes(step.toLowerCase())
+    );
 
     return allSteps.map((step, index) => {
       let status = 'pending';
       if (index < currentStageIndex) status = 'done';
       else if (index === currentStageIndex) status = 'in_progress';
-
-      return { step, status, date: null }; // Add date once your backend supports it
+      return { step, status, date: null };
     });
   };
 
@@ -58,7 +74,10 @@ const OrderStatus = () => {
       <div className="flex-1 p-6 overflow-auto">
         <div className="flex justify-between items-center">
           <h2 className="text-3xl font-bold">Order Status</h2>
-          <button className="bg-white text-black px-4 py-2 rounded font-semibold" onClick={() => navigate('/Customer/place-order')}>
+          <button
+            className="bg-white text-black px-4 py-2 rounded font-semibold"
+            onClick={() => navigate('/Customer/place-order')}
+          >
             Place New Order
           </button>
         </div>
@@ -75,7 +94,7 @@ const OrderStatus = () => {
               >
                 <div className="font-semibold">{order.id}</div>
                 <div className="text-sm text-gray-400">Ordered on {order.date}</div>
-                <span className="inline-block mt-2 text-xs px-2 py-1 bg-zinc-800 rounded-full">
+                <span className="inline-block mt-2 text-xs px-2 py-1 bg-green-500 rounded-full">
                   {order.status}
                 </span>
               </div>
@@ -87,9 +106,10 @@ const OrderStatus = () => {
             <div className="flex-1 border border-zinc-700 rounded p-6">
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-xl font-semibold">Order Details: {selectedOrder.id}</h3>
-                <span className="text-xs px-2 py-1 bg-zinc-800 rounded-full">{selectedOrder.status}</span>
+                <span className="text-xs px-2 py-1 bg-green-400 rounded-full">{selectedOrder.status}</span>
               </div>
               <div className="grid grid-cols-2 text-sm gap-y-2 mb-6">
+                <div><strong>Customer Name: {selectedOrder.name}</strong></div>
                 <div><strong>Order Date:</strong> {selectedOrder.date}</div>
                 <div><strong>Items:</strong> {selectedOrder.items}</div>
                 <div><strong>Cloth Type:</strong> {selectedOrder.clothType}</div>
