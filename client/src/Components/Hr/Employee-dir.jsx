@@ -1,144 +1,201 @@
-import React, { useState } from "react";
-import { FaUser, FaClipboardList, FaCalendarCheck, FaBriefcase, FaPlus } from "react-icons/fa";
-import Sidebar from "./Sidebar";
+import React, { useEffect, useState } from 'react';
+import Sidebar from './Sidebar';
+import axios from 'axios'; // Make sure axios is installed: npm install axios
 
-const employees = [
-  {
-    id: "EMP001",
-    name: "John Smith",
-    department: "Dyeing",
-    position: "Senior Dyer",
-    joinDate: "2020-01-15",
-    status: "Active",
-  },
-  {
-    id: "EMP002",
-    name: "Sarah Johnson",
-    department: "Production",
-    position: "Senior Cutter",
-    joinDate: "2020-03-10",
-    status: "Active",
-  },
-  {
-    id: "EMP003",
-    name: "Michael Brown",
-    department: "Production",
-    position: "Senior Stitcher",
-    joinDate: "2019-11-05",
-    status: "Active",
-  },
-  {
-    id: "EMP004",
-    name: "Emily Davis",
-    department: "Quality",
-    position: "Quality Inspector",
-    joinDate: "2021-02-20",
-    status: "Active",
-  },
-  {
-    id: "EMP005",
-    name: "David Wilson",
-    department: "Production",
-    position: "Cutter",
-    joinDate: "2021-05-12",
-    status: "Active",
-  },
-  {
-    id: "EMP006",
-    name: "Lisa Chen",
-    department: "Dyeing",
-    position: "Dyer",
-    joinDate: "2021-06-15",
-    status: "Active",
-  },
-];
+const EmployeeManagement = () => {
+  const [employees, setEmployees] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-export default function EmployeeDirectory() {
-  const [filter, setFilter] = useState("All");
+  const departments = ['Dyeing', 'Production', 'Quality&Packing'];
 
-  const filteredEmployees = employees.filter(emp => {
-    if (filter === "All") return true;
-    return emp.status === filter;
-  });
+  useEffect(() => {
+    const fetchEmployees = async () => {
+      try {
+        const res = await axios.get('http://localhost:5000/api/dye-emp'); // Update this path if different
+        setEmployees(res.data);
+        setLoading(false);
+      } catch (err) {
+        console.error('Error fetching employees:', err);
+        setLoading(false);
+      }
+    };
+
+    fetchEmployees();
+  }, []);
 
   const totalEmployees = employees.length;
-  const activeEmployees = employees.filter(emp => emp.status === "Active").length;
-  const inactiveEmployees = totalEmployees - activeEmployees;
+  const presentCount = employees.filter(e => e.Status === 'Active').length;
+  const supervisors = employees.filter(e => e.position === 'Supervisor').length;
+  const operators = employees.filter(e => e.position === 'Employee').length;
+
+  const [showModal, setShowModal] = useState(false);
+  const [newEmployee, setNewEmployee] = useState({
+  Emp_ID: '',
+  Emp_Name: '',
+  Dept: '',
+  position: '',
+  Status: 'Active',
+});
+
+const handleAddEmployee = async () => {
+  try {
+    const res = await axios.post('http://localhost:5000/api/dye-emp/add', newEmployee);
+    setEmployees(prev => [...prev, res.data]);
+    setShowModal(false);
+    setNewEmployee({
+      Emp_ID: '',
+      Emp_Name: '',
+      Dept: '',
+      position: '',
+      Status: 'Active',
+    });
+  } catch (error) {
+    console.error("Error adding employee:", error);
+  }
+};
+
 
   return (
-    <div className="min-h-screen bg-black text-white font-sans">
-      <div className="flex">
-        {/* Sidebar */}
-        <Sidebar />
+    <div className="flex bg-[#121212] text-white min-h-screen">
+      <Sidebar />
 
-        {/* Main Content */}
-        <div className="flex-1 p-8">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-3xl font-bold">Employee Directory</h2>
-            <button className="bg-white text-black px-4 py-2 rounded flex items-center space-x-2">
-              <FaPlus /> <span>Add Employee</span>
+      <div className="flex-1 p-8">
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-2xl font-bold">Employee Management</h1>
+            <p className="text-gray-400">Manage employees, attendance, and payroll.</p>
+          </div>
+          <div className="space-x-2">
+            <button
+              onClick={() => setShowModal(true)}
+              className="bg-gray-700 px-4 py-2 rounded hover:bg-gray-600"
+            >
+              Add Employee
             </button>
-          </div>
-          <div className="grid grid-cols-4 gap-4 mb-6">
-            <div className="bg-[#1F1F1F] p-4 rounded">
-              <p className="text-gray-400">Total Employees</p>
-              <p className="text-2xl font-bold">{totalEmployees}</p>
-            </div>
-            <div className="bg-[#1F1F1F] p-4 rounded">
-              <p className="text-gray-400">Active Employees</p>
-              <p className="text-2xl font-bold">{activeEmployees}</p>
-            </div>
-            <div className="bg-[#1F1F1F] p-4 rounded">
-              <p className="text-gray-400">Inactive Employees</p>
-              <p className="text-2xl font-bold">{inactiveEmployees}</p>
-            </div>
-            <div className="bg-[#1F1F1F] p-4 rounded">
-              <p className="text-gray-400">New Hires</p>
-              <p className="text-2xl font-bold">0</p>
-            </div>
-          </div>
-          <div className="flex space-x-4 mb-4">
-            {['All', 'Active', 'Inactive'].map(status => (
-              <button
-                key={status}
-                onClick={() => setFilter(status)}
-                className={`px-4 py-2 rounded ${filter === status ? 'bg-white text-black' : 'bg-[#2A2A2A] text-gray-300'}`}
-              >
-                {status}
-              </button>
-            ))}
-          </div>
 
-          <div className="bg-[#1A1A1A] p-4 rounded">
-            <div className="grid grid-cols-6 gap-4 font-semibold text-gray-400 mb-2">
-              <div>Employee</div>
-              <div>Department</div>
-              <div>Position</div>
-              <div>Join Date</div>
-              <div>Status</div>
-              <div>Actions</div>
-            </div>
-            {filteredEmployees.map(emp => (
-              <div key={emp.id} className="grid grid-cols-6 gap-4 py-2 items-center border-t border-[#333]">
-                <div>
-                  <div className="font-semibold">{emp.name}</div>
-                  <div className="text-sm text-gray-400">{emp.id}</div>
-                </div>
-                <div>{emp.department}</div>
-                <div>{emp.position}</div>
-                <div>{emp.joinDate}</div>
-                <div>
-                  <span className="bg-green-600 text-white px-2 py-1 rounded text-sm">{emp.status}</span>
-                </div>
-                <div className="flex space-x-2">
-                  <button className="text-white bg-[#2A2A2A] p-1 rounded">📄</button>
-                  <button className="text-white bg-[#2A2A2A] p-1 rounded">👁️</button>
-                </div>
-              </div>
-            ))}
           </div>
         </div>
+
+        {loading ? (
+          <p className="mt-8 text-gray-400">Loading employee data...</p>
+        ) : (
+          <>
+            {/* Stats */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mt-8">
+              <StatCard label="Total Employees" value={totalEmployees} desc="Across all departments" />
+              <StatCard label="Present Today" value={presentCount} desc={`${Math.round((presentCount / totalEmployees) * 100)}% attendance rate`} />
+              <StatCard label="Supervisors" value={supervisors} desc="Department leaders" />
+              <StatCard label="Operators" value={operators} desc="Production staff" />
+            </div>
+
+            {/* Department Tables */}
+            {departments.map((dept) => {
+              const deptEmployees = employees.filter(emp => emp.Dept === dept);
+              if (deptEmployees.length === 0) return null;
+
+              return (
+                <div key={dept} className="mt-12">
+                  <h2 className="text-xl font-semibold mb-4">
+                    {dept === 'Quality&Packing' ? 'Quality & Packing Department' : `${dept} Department`}
+                  </h2>
+                  <div className="overflow-x-auto">
+                    <table className="min-w-full text-left border-collapse">
+                      <thead className="bg-[#2c2c2c]">
+                        <tr>
+                          <th className={thClass}>ID</th>
+                          <th className={thClass}>Name</th>
+                          <th className={thClass}>Department</th>
+                          <th className={thClass}>Position</th>
+                          <th className={thClass}>Status</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {deptEmployees.map(emp => (
+                          <tr key={emp._id || emp.Emp_ID} className="border-b border-[#333]">
+                            <td className={tdClass}>{emp.Emp_ID}</td>
+                            <td className={tdClass}>{emp.Emp_Name}</td>
+                            <td className={tdClass}>{emp.Dept}</td>
+                            <td className={tdClass}>{emp.position}</td>
+                            <td className={tdClass}>
+                              <span className={`text-sm px-3 py-1 rounded-full ${emp.Status === 'Active' ? 'bg-green-600' : 'bg-red-600'}`}>
+                                {emp.Status}
+                              </span>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              );
+            })}
+          </>
+        )}
+        {showModal && (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="bg-[#1f1f1f] p-6 rounded-lg w-full max-w-md">
+      <h2 className="text-xl font-semibold mb-4">Add New Employee</h2>
+      <div className="space-y-3">
+        <input
+          type="text"
+          placeholder="Employee ID"
+          value={newEmployee.Emp_ID}
+          onChange={(e) => setNewEmployee({ ...newEmployee, Emp_ID: e.target.value })}
+          className="w-full px-3 py-2 bg-[#2c2c2c] rounded text-white"
+        />
+        <input
+          type="text"
+          placeholder="Employee Name"
+          value={newEmployee.Emp_Name}
+          onChange={(e) => setNewEmployee({ ...newEmployee, Emp_Name: e.target.value })}
+          className="w-full px-3 py-2 bg-[#2c2c2c] rounded text-white"
+        />
+        <select
+          value={newEmployee.Dept}
+          onChange={(e) => setNewEmployee({ ...newEmployee, Dept: e.target.value })}
+          className="w-full px-3 py-2 bg-[#2c2c2c] rounded text-white"
+        >
+          <option value="">Select Department</option>
+          {departments.map(dept => (
+            <option key={dept} value={dept}>{dept}</option>
+          ))}
+        </select>
+        <select
+          value={newEmployee.position}
+          onChange={(e) => setNewEmployee({ ...newEmployee, position: e.target.value })}
+          className="w-full px-3 py-2 bg-[#2c2c2c] rounded text-white"
+        >
+          <option value="">Select Position</option>
+          <option value="Supervisor">Supervisor</option>
+          <option value="Employee">Employee</option>
+        </select>
+      </div>
+      <div className="flex justify-end gap-2 mt-5">
+        <button onClick={() => setShowModal(false)} className="px-4 py-2 bg-gray-600 rounded hover:bg-gray-500">
+          Cancel
+        </button>
+        <button onClick={handleAddEmployee} className="px-4 py-2 bg-green-600 rounded hover:bg-green-500">
+          Add
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
       </div>
     </div>
   );
-}
+};
+
+const StatCard = ({ label, value, desc }) => (
+  <div className="bg-[#1f1f1f] p-5 rounded-lg min-w-[180px]">
+    <h3 className="text-xl font-semibold">{value}</h3>
+    <p className="text-sm mt-1">{label}</p>
+    <p className="text-xs text-gray-400 mt-1">{desc}</p>
+  </div>
+);
+
+const thClass = "py-3 px-4 font-bold text-white";
+const tdClass = "py-3 px-4";
+
+export default EmployeeManagement;

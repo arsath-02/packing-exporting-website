@@ -1,53 +1,74 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Sidebar from "./Sidebar";
-const Attendance = () => {
-  const attendanceData = [
-    {
-      date: "2023-05-01",
-      department: "All",
-      present: 45,
-      absent: 5,
-      onLeave: 2,
-      attendanceRate: 86.5,
-    },
-    {
-      date: "2023-04-30",
-      department: "All",
-      present: 47,
-      absent: 3,
-      onLeave: 2,
-      attendanceRate: 90.4,
-    },
-    {
-      date: "2023-04-29",
-      department: "All",
-      present: 46,
-      absent: 4,
-      onLeave: 2,
-      attendanceRate: 88.5,
-    },
-    {
-      date: "2023-04-28",
-      department: "All",
-      present: 48,
-      absent: 2,
-      onLeave: 2,
-      attendanceRate: 92.3,
-    },
-    {
-      date: "2023-04-27",
-      department: "All",
-      present: 47,
-      absent: 3,
-      onLeave: 2,
-      attendanceRate: 90.4,
-    },
-  ];
+import axios from "axios";
 
-  const getAttendanceColor = (rate) => {
-    if (rate >= 90) return "bg-green-500";
-    if (rate >= 85) return "bg-yellow-400";
-    return "bg-red-500";
+const Attendance = () => {
+  const [attendanceData, setAttendanceData] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchAttendance = async () => {
+      try {
+        const res = await axios.get("http://localhost:5000/api/dye-emp");
+        setAttendanceData(res.data);
+        setLoading(false);
+      } catch (err) {
+        console.error("Error fetching attendance:", err);
+        setLoading(false);
+      }
+    };
+
+    fetchAttendance();
+  }, []);
+
+  // Helper function to calculate the attendance statistics
+  const calculateStatistics = () => {
+    const totalEmployees = attendanceData.length;
+    const activeEmployees = attendanceData.filter(emp => emp.Status === "Active").length;
+    const absentEmployees = attendanceData.filter(emp => emp.Status === "In-Active").length;
+    
+    const attendanceRate = ((activeEmployees / totalEmployees) * 100).toFixed(1);
+    const weeklyAverage = "89.6%"; // Placeholder for weekly average calculation logic if available.
+
+    return {
+      totalEmployees,
+      activeEmployees,
+      absentEmployees,
+      attendanceRate,
+      weeklyAverage,
+    };
+  };
+
+  const { totalEmployees, activeEmployees, absentEmployees, attendanceRate, weeklyAverage } = calculateStatistics();
+
+  const thClass = "px-4 py-2 text-sm font-semibold text-left text-gray-200";
+  const tdClass = "px-4 py-2 text-sm text-white";
+
+  // Convert the attendance data to CSV format
+  const convertToCSV = (data) => {
+    const header = ["ID", "Name", "Department", "Position", "Status"];
+    const rows = data.map(emp => [
+      emp.Emp_ID,
+      emp.Emp_Name,
+      emp.Dept,
+      emp.position,
+      emp.Status
+    ]);
+    
+    // Create CSV content
+    const csvContent = [header, ...rows].map(row => row.join(",")).join("\n");
+
+    return csvContent;
+  };
+
+  // Function to download the CSV file
+  const downloadCSV = () => {
+    const csvContent = convertToCSV(attendanceData);
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "attendance_report.csv";
+    link.click();
   };
 
   return (
@@ -65,68 +86,75 @@ const Attendance = () => {
           </div>
         </header>
 
+        {/* Attendance Statistics Section */}
         <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           <div className="bg-zinc-900 p-4 shadow rounded">
             <h3 className="font-semibold text-lg text-white">Today's Attendance</h3>
-            <p className=" text-2xl text-white">45/52</p>
-            <small className="text-white">86.5% attendance rate</small>
+            <p className="text-2xl text-white">{activeEmployees}/{totalEmployees}</p>
+            <small className="text-white">{attendanceRate}% attendance rate</small>
           </div>
           <div className="bg-zinc-900 p-4 shadow rounded">
             <h3 className="font-semibold text-lg text-white">Absent Today</h3>
-            <p className=" text-2xl text-white">5</p>
+            <p className="text-2xl text-white">{absentEmployees}</p>
             <small className="text-white">Employees not present</small>
           </div>
           <div className="bg-zinc-900 p-4 shadow rounded">
-            <h3 className="font-semibold text-lg text-white">On Leave</h3>
-            <p className=" text-2xl text-white">2</p>
-            <small className="text-white">Approved absences</small>
-          </div>
-          <div className="bg-zinc-900 p-4 shadow rounded">
             <h3 className="font-semibold text-lg text-white">Weekly Average</h3>
-            <p className=" text-2xl text-white">89.6%</p>
+            <p className="text-2xl text-white">{weeklyAverage}</p>
             <small className="text-white">Last 7 days</small>
           </div>
         </section>
 
+        {/* Department Filter and Report Button */}
         <div className="flex items-center justify-between mb-4">
           <select className="border p-2 rounded">
             <option>All Departments</option>
+            {/* Add departments here dynamically */}
           </select>
           <div className="space-x-2">
-            <button className="bg-blue-500 text-white px-4 py-2 rounded">Generate Report</button>
-            <button className="bg-green-500 text-white px-4 py-2 rounded">Mark Attendance</button>
+            <button 
+              onClick={downloadCSV} 
+              className="bg-blue-500 text-white px-4 py-2 rounded"
+            >
+              Generate Report
+            </button>
           </div>
         </div>
 
-        <section className="overflow-x-auto">
-          <table className="min-w-full bg-zinc-900 rounded shadow">
-            <thead>
-              <tr className="bg-zinc-900 text-gray-400 text-left">
-                <th className="px-4 py-2">Date</th>
-                <th className="px-4 py-2">Department</th>
-                <th className="px-4 py-2">Present</th>
-                <th className="px-4 py-2">Absent</th>
-                <th className="px-4 py-2">On Leave</th>
-                <th className="px-4 py-2">Attendance Rate</th>
-              </tr>
-            </thead>
-            <tbody>
-              {attendanceData.map((entry, index) => (
-                <tr key={index} className="border-t text-white">
-                  <td className="px-4 py-2">{entry.date}</td>
-                  <td className="px-4 py-2">{entry.department}</td>
-                  <td className="px-4 py-2">{entry.present}</td>
-                  <td className="px-4 py-2">{entry.absent}</td>
-                  <td className="px-4 py-2">{entry.onLeave}</td>
-                  <td className="px-4 py-2">
-                    <span className={`text-white px-2 py-1 rounded ${getAttendanceColor(entry.attendanceRate)}`}>
-                      {entry.attendanceRate}%
-                    </span>
-                  </td>
+        {/* Attendance Table */}
+        <section className="overflow-x-auto ">
+          <div className="overflow-x-auto">
+            <table className="min-w-full text-left border-collapse">
+              <thead className="bg-[#2c2c2c]">
+                <tr>
+                  <th className={thClass}>ID</th>
+                  <th className={thClass}>Name</th>
+                  <th className={thClass}>Department</th>
+                  <th className={thClass}>Position</th>
+                  <th className={thClass}>Status</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {attendanceData.map((emp) => (
+                  <tr key={emp._id || emp.Emp_ID} className="border-b border-[#333]">
+                    <td className={tdClass}>{emp.Emp_ID}</td>
+                    <td className={tdClass}>{emp.Emp_Name}</td>
+                    <td className={tdClass}>{emp.Dept}</td>
+                    <td className={tdClass}>{emp.position}</td>
+                    <td className={tdClass}>
+                      <span
+                        className={`text-sm px-3 py-1 rounded-full ${
+                          emp.Status === "Active" ? "bg-green-600" : "bg-red-600"
+                        }`}
+                      >
+                        {emp.Status}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </section>
       </main>
     </div>
