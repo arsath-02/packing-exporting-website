@@ -66,17 +66,17 @@ const CuttingTasks = () => {
 
         {/* Status Cards */}
         <div className="flex space-x-4 mb-6">
-          <div className="flex-1 bg-[#1a1a1a] p-4 rounded">
+          <div className="flex-1 bg-zinc-800 p-4 rounded-lg">
             <p className="text-sm text-gray-400">Pending Tasks</p>
             <p className="text-xl font-bold">2</p>
             <p className="text-xs text-gray-500">Not yet started</p>
           </div>
-          <div className="flex-1 bg-[#1a1a1a] p-4 rounded">
+          <div className="flex-1 bg-zinc-800 p-4 rounded-lg">
             <p className="text-sm text-gray-400">In Progress</p>
             <p className="text-xl font-bold">1</p>
             <p className="text-xs text-gray-500">Currently being processed</p>
           </div>
-          <div className="flex-1 bg-[#1a1a1a] p-4 rounded">
+          <div className="flex-1 bg-zinc-800 p-4 rounded-lg">
             <p className="text-sm text-gray-400">Completed</p>
             <p className="text-xl font-bold">1</p>
             <p className="text-xs text-gray-500">Ready for stitching</p>
@@ -84,16 +84,16 @@ const CuttingTasks = () => {
         </div>
 
         {/* Tabs */}
-        <div className="mb-4">
+        <div className="flex gap-4 mb-4">
           <button
             onClick={() => setcompleteblock(!completeblock)}
-            className={`px-4 py-2 rounded-l ${activeTab === 'active' ? 'bg-gray-700' : 'bg-gray-900'} text-white`}
+            className={`px-4 py-2 rounded-lg ${activeTab === 'active' ? 'bg-gray-700' : 'bg-gray-900'} text-white`}
           >
             Active Tasks
           </button>
           <button
             onClick={() => setcompleteblock(!completeblock)}
-            className={`px-4 py-2 rounded-r ${activeTab === 'completed' ? 'bg-gray-700' : 'bg-gray-900'} text-white`}
+            className={`px-4 py-2 rounded-lg ${activeTab === 'completed' ? 'bg-gray-700' : 'bg-gray-900'} text-white`}
           >
             Completed Tasks
           </button>

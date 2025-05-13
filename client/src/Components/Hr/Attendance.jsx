@@ -101,19 +101,18 @@ const Attendance = () => {
         <section className="overflow-x-auto">
           <table className="min-w-full bg-zinc-900 rounded shadow">
             <thead>
-              <tr className="bg-gray-200 text-left">
+              <tr className="bg-zinc-900 text-gray-400 text-left">
                 <th className="px-4 py-2">Date</th>
                 <th className="px-4 py-2">Department</th>
                 <th className="px-4 py-2">Present</th>
                 <th className="px-4 py-2">Absent</th>
                 <th className="px-4 py-2">On Leave</th>
                 <th className="px-4 py-2">Attendance Rate</th>
-                <th className="px-4 py-2">Actions</th>
               </tr>
             </thead>
             <tbody>
               {attendanceData.map((entry, index) => (
-                <tr key={index} className="border-t">
+                <tr key={index} className="border-t text-white">
                   <td className="px-4 py-2">{entry.date}</td>
                   <td className="px-4 py-2">{entry.department}</td>
                   <td className="px-4 py-2">{entry.present}</td>
@@ -123,9 +122,6 @@ const Attendance = () => {
                     <span className={`text-white px-2 py-1 rounded ${getAttendanceColor(entry.attendanceRate)}`}>
                       {entry.attendanceRate}%
                     </span>
-                  </td>
-                  <td className="px-4 py-2">
-                    <button className="text-blue-600">⬇</button>
                   </td>
                 </tr>
               ))}

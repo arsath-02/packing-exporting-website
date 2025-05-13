@@ -70,7 +70,7 @@ const Packing = () => {
       : allOrders.filter((order) => order.status === 'Completed');
 
   return (
-    <main className="flex bg-gray-950 text-white min-h-screen">
+    <main className="flex bg-black text-white min-h-screen">
       <Sidebar />
       <div className="flex-1 p-6">
         <header className="flex justify-between items-center mb-6">
@@ -81,26 +81,26 @@ const Packing = () => {
         <p className="mb-6 text-gray-400">Monitor and manage packing and shipping activities.</p>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
-          <div className="bg-gray-800 p-4 rounded-lg shadow">
+          <div className="bg-zinc-900 p-4 rounded-lg shadow">
             <h4 className="text-sm text-gray-400 mb-1">Orders Packed</h4>
             <p className="text-3xl font-bold">3</p>
             <p className="text-xs text-gray-400">Ready for dispatch</p>
           </div>
-          <div className="bg-gray-800 p-4 rounded-lg shadow">
+          <div className="bg-zinc-900 p-4 rounded-lg shadow">
             <h4 className="text-sm text-gray-400 mb-1">In Transit</h4>
             <p className="text-3xl font-bold">1</p>
             <p className="text-xs text-gray-400">Currently shipping</p>
           </div>
-          <div className="bg-gray-800 p-4 rounded-lg shadow">
+          <div className="bg-zinc-900 p-4 rounded-lg shadow">
             <h4 className="text-sm text-gray-400 mb-1">Delivered</h4>
             <p className="text-3xl font-bold">5</p>
             <p className="text-xs text-gray-400">Successfully delivered</p>
           </div>
         </div>
 
-        <div className="bg-gray-900 p-6 rounded-lg shadow overflow-x-auto">
+        <div className="bg-zinc-900 p-6 rounded-lg shadow overflow-x-auto">
           <h3 className="text-xl font-semibold mb-4">Packing & Shipping Orders</h3>
-
+          <hr className='border-gray-500'></hr>
           {loading ? (
             <p className="text-center py-10 text-gray-400">Loading orders...</p>
           ) : (
@@ -126,7 +126,7 @@ const Packing = () => {
                   filteredOrders.map((order) => (
                     <tr
                       key={order._id}
-                      className="border-t border-gray-800 hover:bg-gray-800 transition"
+                      className="border-t border-zinc-900 hover:bg-gray-800 transition"
                     >
                       <td className="py-3 pr-4">{order.order_id}</td>
                       <td className="pr-4">{order.name}</td>

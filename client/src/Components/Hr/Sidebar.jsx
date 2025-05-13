@@ -9,8 +9,7 @@ const Sidebar = () => {
   const menuItems = [
     { name: 'Dashboard', icon: <FaHome />, path: '/Hr/dashboard' },
     { name: 'Employee Directory', icon: <FaCheckCircle />, path: '/Hr/employee-dir' },
-    { name: 'Attendance', icon: <FaShippingFast />, path:'/Hr/attendance'},
-    { name: 'Recruitment', icon: <FaUsers />, path: '/Quality/team-manage' },
+    { name: 'Attendance', icon: <FaShippingFast />, path:'/Hr/attendance'}
   ];
 
   return (

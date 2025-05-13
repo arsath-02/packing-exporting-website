@@ -70,17 +70,17 @@ const StitchingTasks = ()=> {
 
         {/* Status Summary */}
         <div className="grid grid-cols-3 gap-4 mb-6">
-          <div className="border border-gray-700 rounded-lg p-4">
+          <div className=" bg-zinc-800 rounded-lg p-4">
             <h3 className="text-lg font-semibold">Pending Tasks</h3>
             <p className="text-2xl">2</p>
             <p className="text-sm text-gray-400">Not yet started</p>
           </div>
-          <div className="border border-gray-700 rounded-lg p-4">
+          <div className=" bg-zinc-800 rounded-lg p-4">
             <h3 className="text-lg font-semibold">In Progress</h3>
             <p className="text-2xl">1</p>
             <p className="text-sm text-gray-400">Currently being processed</p>
           </div>
-          <div className="border border-gray-700 rounded-lg p-4">
+          <div className=" bg-zinc-800 rounded-lg p-4">
             <h3 className="text-lg font-semibold">Completed</h3>
             <p className="text-2xl">1</p>
             <p className="text-sm text-gray-400">Ready for quality check</p>
@@ -95,10 +95,10 @@ const StitchingTasks = ()=> {
 
         {/* Task Table */}
         <div className="border border-gray-700 rounded-lg">
-          <div className="p-4 font-semibold border-b border-gray-700">Current Stitching Tasks</div>
+          <div className="p-4 font-semibold border-b border-gray-700 bg-zinc-800">Current Stitching Tasks</div>
           <table className="w-full text-sm">
             <thead>
-              <tr className="text-left border-b border-gray-700">
+              <tr className="text-left border-b border-gray-700 bg-zinc-800">
                 <th className="p-4">Task ID</th>
                 <th>Order</th>
                 <th>Description</th>
