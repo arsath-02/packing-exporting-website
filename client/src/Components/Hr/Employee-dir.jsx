@@ -56,7 +56,7 @@ const handleAddEmployee = async () => {
 
 
   return (
-    <div className="flex bg-[#121212] text-white min-h-screen">
+    <div className="flex bg-black text-white min-h-screen">
       <Sidebar />
 
       <div className="flex-1 p-8">

@@ -25,6 +25,8 @@ import Hr_Dashboard from './Components/Hr/Hr-dashboard'
 import Emp_dir from './Components/Hr/Employee-dir'
 import Attendance from './Components/Hr/Attendance'
 import RegisterPage from './Register'
+import Leave from './Components/Hr/Leave'
+import Salary from './Components/Hr/Salary'
 const App = () => {
   return (
     <div>
@@ -60,6 +62,8 @@ const App = () => {
         <Route path='/Hr/dashboard' element={<Hr_Dashboard />} />
         <Route path="/Hr/employee-dir" element={<Emp_dir />} />
         <Route path="/Hr/attendance" element={<Attendance />} />
+        <Route path="/Hr/Leave" element={<Leave />} />
+        <Route path='/Hr/Salary' element={<Salary />} />
        </Routes>
       </BrowserRouter>
     </div>

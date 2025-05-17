@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { FaHome, FaCheckCircle, FaShippingFast, FaUsers } from 'react-icons/fa';
+import { FaHome, FaCheckCircle, FaShippingFast, FaUsers, FaFileAlt,FaMoneyBillWave } from 'react-icons/fa';
 
 
 const Sidebar = () => {
@@ -9,7 +9,9 @@ const Sidebar = () => {
   const menuItems = [
     { name: 'Dashboard', icon: <FaHome />, path: '/Hr/dashboard' },
     { name: 'Employee Directory', icon: <FaCheckCircle />, path: '/Hr/employee-dir' },
-    { name: 'Attendance', icon: <FaShippingFast />, path:'/Hr/attendance'}
+    { name: 'Attendance', icon: <FaShippingFast />, path:'/Hr/attendance'},
+    { name: 'Leave Management', icon: <FaFileAlt />, path: '/Hr/Leave' },
+    { name: 'Salary', icon: <FaMoneyBillWave />, path: '/Hr/salary' },
   ];
 
   return (
