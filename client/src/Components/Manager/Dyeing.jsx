@@ -104,7 +104,7 @@ const handleAction=async (order)=>{
                 {displayedOrders.map(order => (
                   <tr key={order._id} className="border-t border-gray-700">
                     <td className="p-4">{order.order_id}</td>
-                    <td className="p-4">{order.customer || 'N/A'}</td>
+                    <td className="p-4">{order.name || 'N/A'}</td>
                     <td className="p-4">
                       {Object.entries(order.garmentTypes)
                         .map(([type, qty]) => `${type} (${qty})`)

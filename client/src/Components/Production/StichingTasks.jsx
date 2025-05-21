@@ -96,14 +96,13 @@ const StitchingTasks = ()=> {
         {/* Task Table */}
         <div className="border border-gray-700 rounded-lg">
           <div className="p-4 font-semibold border-b border-gray-700 bg-zinc-800">Current Stitching Tasks</div>
-          <table className="w-full text-sm">
+          <table className="w-full text-md">
             <thead>
-              <tr className="text-left border-b border-gray-700 bg-zinc-800">
-                <th className="p-4">Task ID</th>
-                <th>Order</th>
-                <th>Description</th>
+              <tr className="text-left border-b border-gray-700">
+                <th className="p-4">Order</th>
+                <th>Customer</th>
                 <th>Sizes</th>
-                <th>Assigned To</th>
+                
                 <th>Progress</th>
                 <th>Actions</th>
               </tr>
@@ -111,7 +110,7 @@ const StitchingTasks = ()=> {
             {completeblock?(<tbody>
                 {activetasks.map((task, idx) => (
                   <tr key={task._id || idx} className="border-b border-gray-800">
-                    <td className="p-2">{task._id}</td>
+                    
                     <td className="p-2">{task.order_id}</td>
                     <td className="p-2">{task.name}</td>
                     <td className="p-2">
@@ -119,7 +118,7 @@ const StitchingTasks = ()=> {
                         <span key={size} className="mr-2">{size.toUpperCase()}: {count}</span>
                       ))}
                     </td>
-                    <td className="p-2">{task.user}</td>
+                    
                     <td className="p-2">
                       <div className="h-2 bg-gray-700 rounded">
                         <div
@@ -152,7 +151,7 @@ const StitchingTasks = ()=> {
              ):( <tbody>
               {completedtask.map((task, idx) => (
                   <tr key={task._id || idx} className="border-b border-gray-800">
-                    <td className="p-2">{task._id}</td>
+                   
                     <td className="p-2">{task.order_id}</td>
                     <td className="p-2">{task.name}</td>
                     <td className="p-2">
@@ -160,7 +159,7 @@ const StitchingTasks = ()=> {
                         <span key={size} className="mr-2">{size.toUpperCase()}: {count}</span>
                       ))}
                     </td>
-                    <td className="p-2">{task.user}</td>
+                    
                     <td className="p-2">
                       <div className="h-2 bg-gray-700 rounded">
                         <div

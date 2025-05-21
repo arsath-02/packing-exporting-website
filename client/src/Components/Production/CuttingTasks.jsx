@@ -104,14 +104,14 @@ const CuttingTasks = () => {
         <div className="bg-[#1a1a1a] rounded p-4">
           <h3 className="text-xl font-semibold mb-4">Current Cutting Tasks</h3>
           <div className="overflow-auto">
-            <table className="min-w-full text-sm">
+            <table className="min-w-full text-md">
               <thead className="text-left text-gray-400 border-b border-gray-700">
                 <tr>
-                  <th className="p-2">Task ID</th>
+                 
                   <th className="p-2">Order</th>
                   <th className="p-2">Description</th>
                   <th className="p-2">Sizes</th>
-                  <th className="p-2">Assigned To</th>
+                 
                   <th className="p-2">Progress</th>
                   <th className="p-2">Actions</th>
                 </tr>
@@ -119,7 +119,7 @@ const CuttingTasks = () => {
               {completeblock?(<tbody>
                 {activetasks.map((task, idx) => (
                   <tr key={task._id || idx} className="border-b border-gray-800">
-                    <td className="p-2">{task._id}</td>
+                    
                     <td className="p-2">{task.order_id}</td>
                     <td className="p-2">{task.name}</td>
                     <td className="p-2">
@@ -127,7 +127,7 @@ const CuttingTasks = () => {
                         <span key={size} className="mr-2">{size.toUpperCase()}: {count}</span>
                       ))}
                     </td>
-                    <td className="p-2">{task.user}</td>
+                    
                     <td className="p-2">
                       <div className="h-2 bg-gray-700 rounded">
                         <div
@@ -160,7 +160,7 @@ const CuttingTasks = () => {
              ):( <tbody>
               {completedtask.map((task, idx) => (
                   <tr key={task._id || idx} className="border-b border-gray-800">
-                    <td className="p-2">{task._id}</td>
+                   
                     <td className="p-2">{task.order_id}</td>
                     <td className="p-2">{task.name}</td>
                     <td className="p-2">
@@ -168,7 +168,7 @@ const CuttingTasks = () => {
                         <span key={size} className="mr-2">{size.toUpperCase()}: {count}</span>
                       ))}
                     </td>
-                    <td className="p-2">{task.user}</td>
+                   
                     <td className="p-2">
                       <div className="h-2 bg-gray-700 rounded">
                         <div

@@ -169,7 +169,7 @@ const DepartmentTable = ({ orders, department }) => (
           {orders.map((order) => (
             <tr key={order._id} className="border-b border-gray-800">
               <td className="py-2">{order.order_id}</td>
-              <td className="py-2">{order.customer || "N/A"}</td>
+              <td className="py-2">{order.name || "N/A"}</td>
               <td className="py-2">
                 {order.garmentTypes
                   ? Object.entries(order.garmentTypes)
