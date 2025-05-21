@@ -11,7 +11,7 @@ const EmployeeManagement = () => {
   useEffect(() => {
     const fetchEmployees = async () => {
       try {
-        const res = await axios.get('http://localhost:5000/api/dye-emp'); // Update this path if different
+        const res = await axios.get('https://packing-exporting-website.onrender.com/api/dye-emp'); // Update this path if different
         setEmployees(res.data);
         setLoading(false);
       } catch (err) {
@@ -39,7 +39,7 @@ const EmployeeManagement = () => {
 
 const handleAddEmployee = async () => {
   try {
-    const res = await axios.post('http://localhost:5000/api/dye-emp/add', newEmployee);
+    const res = await axios.post('https://packing-exporting-website.onrender.com/api/dye-emp/add', newEmployee);
     setEmployees(prev => [...prev, res.data]);
     setShowModal(false);
     setNewEmployee({

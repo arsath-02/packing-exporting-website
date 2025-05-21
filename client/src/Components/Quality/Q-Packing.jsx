@@ -11,7 +11,7 @@ const Packing = () => {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const res = await axios.get('http://localhost:5000/api/packing');
+        const res = await axios.get('https://packing-exporting-website.onrender.com/api/packing');
         setAllOrders(res.data.orders);
       } catch (error) {
         console.error('Error fetching orders:', error);
@@ -28,7 +28,7 @@ const Packing = () => {
 
   const handleStatusUpdate = async (orderId, newStatus, newStage = null) => {
     try {
-      await axios.put(`http://localhost:5000/api/packing/${orderId}/status`, {
+      await axios.put(`https://packing-exporting-website.onrender.com/api/packing/${orderId}/status`, {
         status: newStatus,
         stages: newStage,
       });
@@ -47,7 +47,7 @@ const Packing = () => {
 
   const handleQualityCheck = async (orderId) => {
     try {
-      const res = await axios.put(`http://localhost:5000/api/packing/${orderId}/quality-check`);
+      const res = await axios.put(`https://packing-exporting-website.onrender.com/api/packing/${orderId}/quality-check`);
       const { isQualityChecked } = res.data;
 
       setAllOrders((prevOrders) =>

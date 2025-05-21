@@ -15,7 +15,7 @@ const ConfirmOrders = () => {
     const fetchData = async () => {
       try {
 
-        const res = await axios.get("http://localhost:5000/api/orders");
+        const res = await axios.get("https://packing-exporting-website.onrender.com/api/orders");
         console.log(res.data);
         const data1=res.data.filter((order) => order.status == "Pending" && (order.stages == "manager"));
         const data2=res.data.filter((order) => order.status == "Completed" && (order.stages == "manager")); //
@@ -36,8 +36,8 @@ const ConfirmOrders = () => {
   const handleConfirm = async (e) =>{
     console.log("Confirm order",e)
     const orderId = e._id;
-    const res=axios.post(`http://localhost:5000/api/orders/updateDye`,{id:orderId})
-    const res1 = await axios.get("http://localhost:5000/api/orders");
+    const res=axios.post(`https://packing-exporting-website.onrender.com/api/orders/updateDye`,{id:orderId})
+    const res1 = await axios.get("https://packing-exporting-website.onrender.com/api/orders");
     console.log(res1.data);
 
     const data1=res1.data.filter((order) => (order.status == "Pending")&& (order.stages == "manager"));
@@ -49,8 +49,8 @@ const ConfirmOrders = () => {
   const handleDecline = async (e) =>{
     console.log("Decline order",e)
     const orderId = e._id;
-    const res=axios.put(`http://localhost:5000/api/orders/update`,{id:orderId})
-    const res1 = await axios.get("http://localhost:5000/api/orders");
+    const res=axios.put(`https://packing-exporting-website.onrender.com/api/orders/update`,{id:orderId})
+    const res1 = await axios.get("https://packing-exporting-website.onrender.com/api/orders");
     console.log(res1.data);
     console.log(order.status == "Pending" && order.stages == "manager");
     const data1=res1.data.filter((order) => order.status == "Pending" && order.stages == "manager");

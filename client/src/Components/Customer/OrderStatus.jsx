@@ -11,7 +11,7 @@ const OrderStatus = () => {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/packing/');
+        const response = await fetch('https://packing-exporting-website.onrender.com/api/packing/');
         const data = await response.json();
 
         console.log('Fetched data:', data);

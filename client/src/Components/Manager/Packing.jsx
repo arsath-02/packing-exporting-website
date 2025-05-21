@@ -13,7 +13,7 @@ const Packaging = () => {
   useEffect(()=>{
     const fetchData = async()=>{
       try{
-        const res = await axios.get("http://localhost:5000/api/orders");
+        const res = await axios.get("https://packing-exporting-website.onrender.com/api/orders");
         setOrders(res.data);
         console.log(res.data);
       }

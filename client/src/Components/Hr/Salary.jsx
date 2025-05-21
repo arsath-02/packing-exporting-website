@@ -30,7 +30,7 @@ const Salary = () => {
   useEffect(() => {
     const fetchEmployees = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/dye-emp");
+        const res = await axios.get("https://packing-exporting-website.onrender.com/api/dye-emp");
         setEmployees(res.data);
         
         // Generate initial salary data

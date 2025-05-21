@@ -42,7 +42,7 @@ const RegisterPage = () => {
         delete payload.department;
       }
   
-      const response = await axios.post('http://localhost:5000/api/auth/register', payload);
+      const response = await axios.post('https://packing-exporting-website.onrender.com/api/auth/register', payload);
       setMessage(response.data.message);
       navigate('/');
     } catch (err) {

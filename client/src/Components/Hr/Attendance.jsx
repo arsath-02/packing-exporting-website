@@ -9,7 +9,7 @@ const Attendance = () => {
   useEffect(() => {
     const fetchAttendance = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/dye-emp");
+        const res = await axios.get("https://packing-exporting-website.onrender.com/api/dye-emp");
         setAttendanceData(res.data);
         setLoading(false);
       } catch (err) {

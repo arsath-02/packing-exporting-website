@@ -14,7 +14,7 @@ const TeamManagement = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/dye-emp");
+        const res = await axios.get("https://packing-exporting-website.onrender.com/api/dye-emp");
         setTeamMembers(res.data);
       } catch (e) {
         console.error(`An error occurred: ${e.message}`);
@@ -25,7 +25,7 @@ const TeamManagement = () => {
 
   const toggleStatus = async (empId) => {
     try {
-      const res = await axios.put(`http://localhost:5000/api/dye-emp/status/${empId}`);
+      const res = await axios.put(`https://packing-exporting-website.onrender.com/api/dye-emp/status/${empId}`);
       setTeamMembers((prev) =>
         prev.map((emp) =>
           emp.Emp_ID === empId ? { ...emp, Status: res.data.status } : emp

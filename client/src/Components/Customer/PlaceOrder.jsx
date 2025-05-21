@@ -76,7 +76,7 @@ const PlaceOrder = () => {
         notes: formData.notes,
       };
 
-      const response = await axios.post('http://localhost:5000/api/orders/place', orderPayload);
+      const response = await axios.post('https://packing-exporting-website.onrender.com/api/orders/place', orderPayload);
 
       if (response.status === 200 || response.status === 201) {
         alert('Order placed successfully!');

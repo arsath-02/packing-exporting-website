@@ -8,7 +8,7 @@ const CuttingTasks = () => {
   useEffect(() => {
     const fetchTasks = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/production/cut");
+        const response = await axios.get("https://packing-exporting-website.onrender.com/api/production/cut");
         console.log(response.data); // Optional: Check data format
         settask(response.data);
       } catch (error) {
@@ -21,9 +21,9 @@ const CuttingTasks = () => {
     const OrderId = task._id;
     try {
       console.log("Changing task to in progress");
-      const res = await axios.put("http://localhost:5000/api/production/put1", { id: OrderId });
+      const res = await axios.put("https://packing-exporting-website.onrender.com/api/production/put1", { id: OrderId });
       console.log("Order is started  successfully");
-      const response = await axios.get("http://localhost:5000/api/production/cut");
+      const response = await axios.get("https://packing-exporting-website.onrender.com/api/production/cut");
       console.log(response.data); // Optional: Check data format
       settask(response.data);
     }
@@ -35,9 +35,9 @@ const CuttingTasks = () => {
     try {
       const oid = task._id;
       console.log("Changing task to Completed");
-      const res = await axios.put("http://localhost:5000/api/production/put2", { id: oid });
+      const res = await axios.put("https://packing-exporting-website.onrender.com/api/production/put2", { id: oid });
       console.log("Order is started  successfully");
-      const response = await axios.get("http://localhost:5000/api/production/cut");
+      const response = await axios.get("https://packing-exporting-website.onrender.com/api/production/cut");
       console.log(response.data); // Optional: Check data format
       settask(response.data);
 

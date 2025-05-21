@@ -30,7 +30,7 @@ const LoginPage = () => {
 
     try {
       // Send login request to backend
-      const response = await axios.post('http://localhost:5000/api/auth/login', {
+      const response = await axios.post('https://packing-exporting-website.onrender.com/api/auth/login', {
         email: formData.email,
         password: formData.password,
         role: formData.role,

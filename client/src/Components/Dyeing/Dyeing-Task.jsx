@@ -11,7 +11,7 @@ const DyeingTask = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/dyeing");
+        const res = await axios.get("https://packing-exporting-website.onrender.com/api/dyeing");
         setOrders(res.data);
         console.log("Fetched orders:", res.data);
       } catch (e) {
@@ -34,15 +34,15 @@ const DyeingTask = () => {
     try{
       const orderId = order._id;
       if(order.status=='Pending'){
-      const res= await axios.put(`http://localhost:5000/api/dyeing/`,{id:orderId});
+      const res= await axios.put(`https://packing-exporting-website.onrender.com/api/dyeing/`,{id:orderId});
       console.log("Order update",res.data);
-      const res1 = await axios.get("http://localhost:5000/api/dyeing");
+      const res1 = await axios.get("https://packing-exporting-website.onrender.com/api/dyeing");
       setOrders(res1.data);
       }
       else if(order.status=='In Progress'){
-        const res= await axios.put(`http://localhost:5000/api/dyeing/put2`,{id:orderId});
+        const res= await axios.put(`https://packing-exporting-website.onrender.com/api/dyeing/put2`,{id:orderId});
         console.log("Order update",res.data);
-      const res1 = await axios.get("http://localhost:5000/api/dyeing");
+      const res1 = await axios.get("https://packing-exporting-website.onrender.com/api/dyeing");
       setOrders(res1.data);
       }
 

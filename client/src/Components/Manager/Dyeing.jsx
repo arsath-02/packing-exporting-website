@@ -15,7 +15,7 @@ const Dyeing = () => {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const res = await axios.get('http://localhost:5000/api/dyeing');
+        const res = await axios.get('https://packing-exporting-website.onrender.com/api/dyeing');
 
           const allOrders = res.data;
 
@@ -46,7 +46,7 @@ const handleAction=async (order)=>{
   try{
     const id=order._id
     console.log("Id in frontend ",id);
-    const res=await axios.put("http://localhost:5000/Manager/",{oid:id});
+    const res=await axios.put("https://packing-exporting-website.onrender.com/Manager/",{oid:id});
     console.log(res);
     fetchOrders();
   }

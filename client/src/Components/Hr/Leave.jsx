@@ -35,7 +35,7 @@ const LeaveManagement = () => {
     const fetchData = async () => {
       try {
         // Fetch employee data
-        const empRes = await axios.get("http://localhost:5000/api/dye-emp");
+        const empRes = await axios.get("https://packing-exporting-website.onrender.com/api/dye-emp");
         setEmployees(empRes.data);
         
         // For demo purposes, generate some sample leave requests

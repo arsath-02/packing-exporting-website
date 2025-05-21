@@ -13,8 +13,8 @@ const Production = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res1 = await axios.get("http://localhost:5000/api/production/cut");
-        const res2 = await axios.get("http://localhost:5000/api/production-stiches/");
+        const res1 = await axios.get("https://packing-exporting-website.onrender.com/api/production/cut");
+        const res2 = await axios.get("https://packing-exporting-website.onrender.com/api/production-stiches/");
 
         const combinedData = [...res1.data, ...res2.data]; // Merging arrays
 
@@ -141,7 +141,7 @@ const handlesumma=()=>{
  const handlePacking = async (order)=>{
  try{
   const oid=order._id;
-   const res=await axios.put("http://localhost:5000/api/production_sidemanager",{id:oid});
+   const res=await axios.put("https://packing-exporting-website.onrender.com/api/production_sidemanager",{id:oid});
    console.log("Sent to packing side successfully",res.message);
  }
  catch(err)

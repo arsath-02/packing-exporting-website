@@ -19,17 +19,17 @@ const ManagerDashboard = () => {
 
   useEffect(() => {
     // Fetch dashboard stats
-    axios.get('http://localhost:5000/api/dashboard/stats')
+    axios.get('https://packing-exporting-website.onrender.com/api/dashboard/stats')
       .then(res => setDashboardStats(res.data))
       .catch(err => console.error('Error fetching dashboard stats:', err));
 
     // Fetch recent activities
-    axios.get('http://localhost:5000/api/dashboard/activities')
+    axios.get('https://packing-exporting-website.onrender.com/api/dashboard/activities')
       .then(res => setActivities(res.data))
       .catch(err => console.error('Error fetching activities:', err));
 
     // Fetch department statuses
-    axios.get('http://localhost:5000/api/dashboard/department-status')
+    axios.get('https://packing-exporting-website.onrender.com/api/dashboard/department-status')
       .then(res => setDeptStatus(res.data))
       .catch(err => console.error('Error fetching department status:', err));
   }, []);
